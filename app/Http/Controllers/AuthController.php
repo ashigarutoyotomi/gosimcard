@@ -6,9 +6,23 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
+/**
+ * AuthController
+ *
+ * class to control all operations of users in api
+ * methods to show the current user(me),logout, login
+ */
 class AuthController extends Controller
 {
+
+    /**
+     * me
+     *method to show the current user
+     *@params void
+     *returns only one record of user in json
+     */
     public function me()
     {
         $user = Auth::user();
@@ -20,6 +34,41 @@ class AuthController extends Controller
         ];
     }
 
+    /**
+     * logout
+     *method to delete record of current users
+     *
+     * @return message(json) or report of failure
+     */
+    public function logout()
+    {
+        try {
+            Session::flush();
+            $success = true;
+            $message = 'Successfully logged out';
+            Auth::user()->tokens()->delete();
+        } catch (\Illuminate\Database\QueryException $ex) {
+            $success = false;
+            $message = $ex->getMessage();
+        }
+
+        // response
+        $response = [
+            'success' => $success,
+            'message' => $message,
+        ];
+
+        return response()->json($response);
+    }
+
+    /**
+     * login
+     *method to login, it protected with middleware of sanctum
+     *accepts json data to identify the user(email and password)
+     * @param  mixed $request
+     * @returns a response with token and user data on success,
+     * if fail, returns only a message of failure
+     */
     public function login(Request $request)
     {
         $credentials = [

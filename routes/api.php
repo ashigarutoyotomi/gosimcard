@@ -1,6 +1,5 @@
 <?php
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,14 +17,8 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/tokens/create', function (Request $request) {
-        $validated = $request->validate([
-            'token_name' => "required|string|max:50",
-        ]);
-        $token = $request->user()->create_token($request->token_name);
-        return ['token' => $token->plainTextToken];
-    });
     Route::get('/me', [AuthController::class, "me"]);
+    Route::get('/logout', [AuthController::class,'logout']);
 });
 
 Route::post("/login", [AuthController::class, "login"]);
