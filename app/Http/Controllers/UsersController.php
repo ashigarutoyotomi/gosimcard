@@ -25,12 +25,12 @@ class UsersController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->save();
-        return redirect()->to('/');
+        return response()->json(['inserted user ' . $user->name . ", id: " . $user->id]);
     }
     public function show(Request $request, $userId)
     {
         $user = User::find($userId);
-        return response()->json(['user' => $user]);
+        return response()->json([$user]);
     }
     public function edit(Request $request, $userId)
     {
@@ -48,14 +48,16 @@ class UsersController extends Controller
         $user->name = $request->name ? $request->name : $user->name;
         $user->email = $request->email ? $request->email : $user->email;
         $user->password = $request->password ? Hash::make($request->password) : $user->password;
+        return response()->json(['msg' => 'success. updated id ' . $user->id]);
     }
-    function delete (Request $request,$userId){
+    public function delete(Request $request, $userId)
+    {
         try {
-            $user = User::find($showId);
+            $user = User::find($userId);
             $user->delete();
-        }catch($e){
-            return response()->json(['msg'=>$e]);
+        } catch (Exception $e) {
+            return response()->json(['msg' => $e]);
         }
-        return response()->json(['msg'=>'succesfully deleted user by'. $user->id]);
+        return response()->json(['msg' => 'succesfully deleted user by' . $user->id]);
     }
 }
