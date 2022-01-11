@@ -13,7 +13,7 @@ class SimCardRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class SimCardRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'require',
+            'quantity' => 'required|integer',
+            'image' => 'nullable|image',
         ];
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\SimCard;
-use Spp\Http\Requests\SimCard\SimCardRequest;
+use App\Http\Requests\SimCard\SimCardRequest;
 use App\Http\Controllers\Controller;
 use App\Domains\SimCards\Gateways\SimCardGateway;
 use App\Http\Requests\SimCard\SimCardRequest;
