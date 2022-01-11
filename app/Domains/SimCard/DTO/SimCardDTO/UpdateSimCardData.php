@@ -19,7 +19,7 @@ class UpdateSimCardData extends DataTransferObject
             'name' => $request->get('name'),
             'quantity' => (int) $request->get('quantity'),
         ];
-        $file = = $request->file('image');
+        $file = $request->file('image');
         if ($file){
             $data['image_src']=$file->store('images/simcard');
         } else {

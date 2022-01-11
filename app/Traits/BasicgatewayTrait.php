@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
-trait BasicGatewaysTrait{
+trait BasicGatewaysTrait
+{
     protected $filters = [];
     protected $search = [
-        'keywords'=>'',
-        'columns'=>'',
+        'keywords' => '',
+        'columns' => '',
     ];
     protected $with = null;
     protected $paginate = null;
@@ -18,7 +19,8 @@ trait BasicGatewaysTrait{
      * @param array|string $with
      * @return $this
      */
-    public function with($with){
+    public function with($with)
+    {
         $this->with = $with;
         return $this;
     }
@@ -29,8 +31,9 @@ trait BasicGatewaysTrait{
      * @param array $filters
      * @return $this
      */
-    public function setFilters(array $filters){
-        $this->filters = $filters,
+    public function setFilters(array $filters)
+    {
+        $this->filters = $filters;
         return $this;
     }
     /**
@@ -40,10 +43,11 @@ trait BasicGatewaysTrait{
      * @param array $columns
      * @return $this
      */
-    public function setSearch(array $keywords, array $columns){
+    public function setSearch(array $keywords, array $columns)
+    {
         $this->search = [
-            'keywords'=>$keywords,
-            'columns'=>$columns
+            'keywords' => $keywords,
+            'columns' => $columns,
         ];
         return $this;
     }
@@ -53,7 +57,8 @@ trait BasicGatewaysTrait{
      * @param int $paginate
      * @return $this
      */
-    public function Paginate(int $paginate){
+    public function Paginate(int $paginate)
+    {
         $this->paginate = $paginate;
         return $this;
     }
@@ -64,7 +69,8 @@ trait BasicGatewaysTrait{
      * @param int $limit
      * @return $this
      */
-    public function limit (int $limit){
+    public function limit(int $limit)
+    {
         $this->limit = $limit;
         return $this;
     }
@@ -75,7 +81,8 @@ trait BasicGatewaysTrait{
      * @param int $role
      * @return $this
      */
-    public function setRole($role){
+    public function setRole($role)
+    {
         $this->role = $role;
         return $this;
     }
