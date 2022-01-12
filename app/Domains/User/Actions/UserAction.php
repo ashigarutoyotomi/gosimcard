@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domains\User\Action;
-
+namespace App\Domains\User\Actions;
+use Illuminate\Support\Facades\Hash;
 use App\Domains\User\DTO\UserDTO\CreateUserData;
 use App\Domains\User\Models\User;
-
+use App\Domains\User\DTO\UserDTO\UpdateUserData;
 class UserAction
 {
     /**
@@ -15,11 +15,21 @@ class UserAction
     public function create(CreateUserData $data)
     {
         return User::create([
-            'first_name' => $data->first_name,
-            'last_name' => $data->last_name,
+            'name' => $data->name,
+            // 'last_name' => $data->last_name,
             'email' => $data->email,
             'password' => $data->password,
             'role' => $data->role,
         ]);
+    }
+    public function update (UpdateUserData $data){
+        $user = User::find($data->id);
+        abort_unless((bool)$user,404,'user not found');
+        $user->name = $data->name;
+        $user->email = $data->email;
+        $user->password = $data->password ? Hash::make($data->password) : $user->password;
+        $user->role = $data->role;
+        $user->save();
+        return $user;
     }
 }

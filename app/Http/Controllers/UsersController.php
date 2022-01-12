@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\User\Actions\UserAction;
+use App\Domains\User\DTO\UserDTO\UpdateUserData;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use App\Domains\User\DTO\UserDTO\CreateUserData;
 class UsersController extends Controller
 {
     public function index(Request $request)
     {
         $users = User::all();
-        return response()->json(['users' => $users]);
+        return response()->json([$users]);
     }
     public function store(Request $request)
     {
@@ -19,45 +21,50 @@ class UsersController extends Controller
             'name' => 'required|string|max:100',
             'email' => 'required|email',
             'password' => 'required|string|max:50',
+            'role'=>'required|int'
         ]);
-        $user = new User;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->save();
-        return response()->json(['inserted user ' . $user->name . ", id: " . $user->id]);
+        $data = new CreateUserData(     ['name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>Hash::make($request->password),
+            'role'=>$request->role]);
+        $user = (new UserAction)->create($data);
+        return $user;
     }
     public function show(Request $request, $userId)
     {
         $user = User::find($userId);
+        abort_unless((bool)$user,404,'user not found');
         return response()->json([$user]);
     }
     public function edit(Request $request, $userId)
     {
         $user = User::find($userId);
+        abort_unless((bool)$user,404,'user not found');
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'password' => $user->password,
+            'role' => $user->role
         ]);
     }
     public function update(Request $request, $userId)
     {
-        $user = User::find($userId);
-        $user->name = $request->name ? $request->name : $user->name;
-        $user->email = $request->email ? $request->email : $user->email;
-        $user->password = $request->password ? Hash::make($request->password) : $user->password;
-        return response()->json(['msg' => 'success. updated id ' . $user->id]);
+        $data = new UpdateUserData([
+            'name'=>$request->name,
+            'password'=>$request->password,
+            'email'=>$request->email,
+            'role'=>(int)$request->role,
+           'id'=>(int)$userId
+        ]);
+
+       $user = (new UserAction)->update($data);
+        return $user;
     }
-    public function delete(Request $request, $userId)
+    public function delete($userId)
     {
-        try {
-            $user = User::find($userId);
-            $user->delete();
-        } catch (Exception $e) {
-            return response()->json(['msg' => $e]);
-        }
-        return response()->json(['msg' => 'succesfully deleted user by' . $user->id]);
+        $user = User::find($userId);
+        abort_unless((bool)$user,404,'user not found');
+        $user->delete();
+        return $user;
     }
 }

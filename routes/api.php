@@ -20,16 +20,15 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, "me"]);
     Route::get('/logout', [AuthController::class, 'logout']);
+    
+    Route::group(['prefix'=>'/users'],function (){
+        Route::get('/', [UsersController::class, 'index']);
+        Route::post('/store', [UsersController::class, 'store']);
+        Route::get('/{id}/show', [UsersController::class, 'show']);
+        Route::get('/{id}/edit', [UsersController::class, 'edit']);
+        Route::post('/{id}/update', [UsersController::class, "update"]);
+        Route::delete('/{id}/delete', [UsersController::class, 'delete']);
+    });
 });
 
 Route::post("/login", [AuthController::class, "login"]);
-
-// users crud actions
-Route::middleware('IsAdmin')->group(function () {
-    Route::get('/users/index', [UsersController::class, 'index']);
-    Route::post('/users/store', [UsersController::class, 'store']);
-    Route::get('/users/show/{id}', [UsersController::class, 'show']);
-    Route::get('/users/edit/{id}', [UsersController::class, 'edit']);
-    Route::post('/users/update/{id}', [UsersController::class, "update"]);
-    Route::delete('/users/delete/{id}', [UsersController::class, 'delete']);
-});
