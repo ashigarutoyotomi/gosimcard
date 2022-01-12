@@ -1,16 +1,19 @@
 <?php
 
-namespace App\Domains\SimCards\Models;
-
+namespace App\Domains\SimCard\Models;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SimCard extends Model
+class Simcard extends Model
 {
     use HasFactory;
     protected $table = 'simcards';
 
     protected $fillable = [
-        'name', 'quantity', 'image_src',
+        'number', 'user_id', 'days','status'
     ];
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

@@ -7,25 +7,20 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class UpdateSimCardData extends DataTransferObject
 {
-    intpublic $id;
-    stringpublic $name;
-    intpublic $quantity;
-    ?stringpublic $image_src;
+    public int $days;
+    public string $number;
+    public int $user_id;
+    public int $status;
 
     public static function fromRequest(int $simcardId,
         SimCardRequest $request) : UpdateSimCardData {
         $data = [
             'id' => $simcardId,
-            'name' => $request->get('name'),
-            'quantity' => (int) $request->get('quantity'),
-        ];
-        $file = $request->file('image');
-        if ($file){
-            $data['image_src']=$file->store('images/simcard');
-        } else {
-            Storage::delete($data['image_src']);
-            $data['image_src']= null;
-        }
+            'number' => $request->get('number'),
+            'days' => (int) $request->get('days'),
+            'status'=>(int) $request->get('status'),
+            'user_id'=>(int)$request->get('user_id')
+        ];        
         return new self($data);
     }
 }
