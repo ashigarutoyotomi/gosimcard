@@ -6,9 +6,9 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CreateSimCardData extends DataTransferObject
 {
-    stringpublic $name;
-    intpublic $quantity;
-    ?stringpublic $image_src;
+    public string $name;
+    public int $quantity;
+    public ?string $image_src;
 
     public static function fromRequest(SimCardRequest $request) : CreateSimCardData
     {
