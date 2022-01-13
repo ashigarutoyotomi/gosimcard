@@ -6,7 +6,6 @@ use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
 use App\Domains\SimCard\Gateways\SimCardGateway;
 use App\Domains\SimCard\Models\SimCard;
-// use Illuminate\Support\Facades\Storage;
 
 class SimCardAction
 {

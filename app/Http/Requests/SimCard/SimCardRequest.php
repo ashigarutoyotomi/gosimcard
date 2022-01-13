@@ -27,7 +27,7 @@ class SimCardRequest extends FormRequest
             'number' => 'require',
             'days' => 'required|integer',
             'user_id' => 'required|integer',
-            'status'=>'required|nullable'
+            'status'=>'nullable'
         ];
     }
 }
