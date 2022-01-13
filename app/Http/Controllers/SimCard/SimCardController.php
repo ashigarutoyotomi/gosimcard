@@ -10,17 +10,17 @@ use Illuminate\Http\Request;
 use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
 use App\Domains\SimCard\Actions\SimCardAction;
-use App\Domains\SimCard\Models\Simcard;
+use App\Domains\SimCard\Models\SimCard;
 
 class SimCardController extends Controller
 {
     public function index()
     {
-        $simcards = Simcard::all();
+        $simcards = SimCard::all();
         return $simcards;
     }
     public function show($simCardId){
-        $simcard = Simcard::find($simCardId);
+        $simcard = SimCard::find($simCardId);
         abort_unless((bool)$simcard,404,'simcard not found');        
         return $simcard;
     }
@@ -40,7 +40,7 @@ class SimCardController extends Controller
         return $simcard;
     }
     public function delete ($simCardId){
-        $simcard = Simcard::find($simCardId);
+        $simcard = SimCard::find($simCardId);
         $simcard->delete();
         abort_unless((bool)$simcard,404,'simcard not found');
         return $simcard;
