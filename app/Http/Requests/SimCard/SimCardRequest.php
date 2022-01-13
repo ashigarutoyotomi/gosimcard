@@ -24,9 +24,10 @@ class SimCardRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'require',
-            'quantity' => 'required|integer',
-            'image' => 'nullable|image',
+            'number' => 'require',
+            'days' => 'required|integer',
+            'user_id' => 'required|integer',
+            'status'=>'required|nullable'
         ];
     }
 }

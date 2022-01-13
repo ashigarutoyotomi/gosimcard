@@ -6,20 +6,19 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CreateSimCardData extends DataTransferObject
 {
-    public string $name;
-    public int $quantity;
-    public ?string $image_src;
+    public int $user_id;
+    public string $number;
+    public int $days;
+    public int $status;
 
     public static function fromRequest(SimCardRequest $request) : CreateSimCardData
     {
         $data = [
-            'name' => $request->get('name'),
-            'quantity' => (int) $request->get('quantity'),
-        ];
-        $file = $request->file('image');
-        if ($file) {
-            $data['image_src'] = $file->store('images/simcard');
-        }
+            'number' => $request->number,
+            'days' => (int) $request->days,
+            'user_id'=>(int)$request->user_id,
+            'status'=>(int)$request->status
+        ];        
         return new self($data);
     }
 }

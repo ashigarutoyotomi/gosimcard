@@ -2,7 +2,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\SimCard\SimCardController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -29,6 +29,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/update', [UsersController::class, "update"]);
         Route::delete('/{id}/delete', [UsersController::class, 'delete']);
     });
-});
 
+    
+});
+Route::group(['prefix'=>'/simcards'],function(){
+    Route::get('/',[SimcardController::class,'index']);
+    Route::post('/store',[SimCardController::class,'store']);
+    Route::get('/{id}/show',[SimcardController::class,'show']);
+    Route::delete('/{id}/delete',[SimcardController::class,'delete']);
+});
 Route::post("/login", [AuthController::class, "login"]);
