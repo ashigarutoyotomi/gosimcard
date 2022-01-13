@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use App\Domains\SimCard\Models\SimCard;
 class CreateSimActivationsTable extends Migration
 {
     /**
@@ -19,7 +19,7 @@ class CreateSimActivationsTable extends Migration
             $table->integer('available_days')->default(0);
             $table->datetime('start_date');
             $table->datetime('end_date');
-            $table->integer('status')->default(1);
+            $table->integer('status')->default(SimCard::STATUS_NEW);
             $table->integer('sim_card_id');
             $table->integer('user_id');
             $table->foreign('user_id')->references('id')->on('users');

@@ -7,9 +7,9 @@ use App\Http\Requests\SimCard\SimCardRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardData;
+use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardActivationData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
-use App\Domains\SimCard\Actions\SimCardAction;
+use App\Domains\SimCard\Actions\SimCardActivationAction;
 use App\Domains\SimCard\Models\SimActivation;
 use App\Domains\SimCard\Models\SimCard;
 use Illuminate\Support\Facades\Mail;
@@ -25,31 +25,22 @@ class SimCardActivationController extends Controller{
         return $simActivation;
     }
     public function store(Request $request){
-        $simActivation = new SimActivation;
         $validated = $request->validate([
             'available_days'=> 'required|integer',
             'start_date'=>'required|date',
             'end_date'=>'required|date',
             'status'=>"nullable|integer",
             'sim_card_id'=>'required|integer'
+        ]);    
+        $data = new CreateSimCardActivationData([
+            'available_days'=>(int)$request->available_days,
+            'end_date'=>(int)$request->end_date,
+            'start_date'=>(int)$request->start_date,
+            'user_id'=>(int)$request->user_id,
+            'sim_card_id'=>(int)$request->sim_card_id,
+            'status'=>SimCard::STATUS_NEW
         ]);
-        $simActivations = [
-            'start_date' => $request->start_date,
-            'end_date'=>$request->end_date,
-            'sim_card_id'=>$request->sim_card_id,
-            'status'=>$request->status,
-            'available_days'=>$request->available_days,
-            'sim_card_id'=>$request->sim_card_id,
-            'user_id'=>$request->user_id
-            ];
-        $simActivation = new SimActivation;
-        $simActivation->sim_card_id = $simActivations['sim_card_id'];
-        $simActivation->user_id = $simActivations['user_id'];
-        $simActivation->start_date= $simActivations['start_date'];
-        $simActivation->end_date = $simActivations['end_date'];
-        $simActivation->status = $simActivations['status']?$simActivations['status']:1;        
-        $simActivation->available_days = $simActivations['available_days'];   
-        $simActivation->save();
+        $simActivation = (new SimCardActivationAction)->create($data);    
         // Mail::to('admin@gmail.com')->send(new SimCardActivationCreated($simActivation));
         return $simActivation;
     }
@@ -57,8 +48,8 @@ class SimCardActivationController extends Controller{
         $simActivation = SimActivation::with('simcard')->find($simActivationId);
         abort_unless((bool)$simActivation,404,'simactivation not found');
         $simCard = $simActivation->simcard;
-        $simCard->status = 3;
-        $simActivation->status =3;               
+        $simCard->status = SimCard::STATUS_ACTIVATED;
+        $simActivation->status =SimCard::STATUS_ACTIVATED;               
         $simCard->save();
         $simActivation->save();
         // Mail::to("admin@gmail.com")->send(new SimCardActivated($simActivation));

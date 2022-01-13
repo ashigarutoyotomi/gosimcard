@@ -34,17 +34,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}/delete', [UsersController::class, 'delete']);
     });
 
-    Route::group(['prefix'=>'simcardactivation'],
+    Route::group(['prefix'=>'/simcards'],function(){
+        Route::get('/',[SimCardController::class,'index']);
+        Route::post('/store',[SimCardController::class,'store']);
+        Route::get('/{id}/show',[SimCardController::class,'show']);
+        Route::delete('/{id}/delete',[SimCardController::class,'delete']);
+    });    
+});
+
+Route::group(['prefix'=>'simcardactivation'],
     function(){
        Route::get('/',[SimCardActivationController::class,'index']);
         Route::get('/{id}/show',[SimCardActivationController::class,'show']);
         Route::post('/store',[SimCardActivationController::class,'store']);
-        Route::get('/{id}/activate',[SimCardActivationController::class,'activate']);
+        Route::post('/{id}/activate',[SimCardActivationController::class,'activate']);
     });
-});
-Route::group(['prefix'=>'/simcards'],function(){
-    Route::get('/',[SimCardController::class,'index']);
-    Route::post('/store',[SimCardController::class,'store']);
-    Route::get('/{id}/show',[SimCardController::class,'show']);
-    Route::delete('/{id}/delete',[SimCardController::class,'delete']);
-});
