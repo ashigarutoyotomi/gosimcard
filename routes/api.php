@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SimCard\SimCardActivationController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SimCard\SimCardController;
@@ -35,6 +36,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}/edit', [UsersController::class, 'edit']);
         Route::post('/{id}/update', [UsersController::class, "update"]);
         Route::delete('/{id}/delete', [UsersController::class, 'delete']);
+    });
+
+    Route::group(['prefix'=>'simcardactivation'],
+    function(){
+        Route::get('/',[SimCardActivationController::class,'index']);
+        Route::get('/{id}/show',[SimCardActivationController::class,'show']);
+        Route::post('/store',[SimCardActivationController::class,'store']);
+        Route::get('/activate',[SimCardActivationController::class,'activate']);
     });
 });
 
