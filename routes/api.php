@@ -18,16 +18,12 @@ use App\Http\Controllers\SimCard\SimCardController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+Route::post("/login", [AuthController::class, "login"]);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, "me"]);
     Route::get('/logout', [AuthController::class, 'logout']);    
 
-    Route::group(['prefix'=>'/simcards'],function(){
-        Route::get('/',[SimCardController::class,'index']);
-        Route::post('/store',[SimCardController::class,'store']);
-        Route::get('/{id}/show',[SimCardController::class,'show']);
-        Route::delete('/{id}/delete',[SimCardController::class,'delete']);
-    });
+    
 
     Route::group(['prefix'=>'/users'],function (){
         Route::get('/', [UsersController::class, 'index']);
@@ -40,11 +36,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::group(['prefix'=>'simcardactivation'],
     function(){
-        Route::get('/',[SimCardActivationController::class,'index']);
+       Route::get('/',[SimCardActivationController::class,'index']);
         Route::get('/{id}/show',[SimCardActivationController::class,'show']);
         Route::post('/store',[SimCardActivationController::class,'store']);
-        Route::get('/activate',[SimCardActivationController::class,'activate']);
+        Route::get('/{id}/activate',[SimCardActivationController::class,'activate']);
     });
 });
-
-Route::post("/login", [AuthController::class, "login"]);
+Route::group(['prefix'=>'/simcards'],function(){
+    Route::get('/',[SimCardController::class,'index']);
+    Route::post('/store',[SimCardController::class,'store']);
+    Route::get('/{id}/show',[SimCardController::class,'show']);
+    Route::delete('/{id}/delete',[SimCardController::class,'delete']);
+});

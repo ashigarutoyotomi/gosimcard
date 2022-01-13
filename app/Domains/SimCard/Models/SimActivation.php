@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\SimCard\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +9,6 @@ class SimActivation extends Model
 {
     use HasFactory;
     public function simcard(){
-        return $this->belongsTo(SimCard::class);
+        return $this->belongsTo(SimCard::class,'sim_card_id');
     }
 }

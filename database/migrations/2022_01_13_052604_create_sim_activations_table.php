@@ -14,7 +14,7 @@ class CreateSimActivationsTable extends Migration
     public function up()
     {
         Schema::create('sim_activations', function (Blueprint $table) {
-            $table->id();
+            $table->id()->autoincrements();
             $table->timestamps();
             $table->integer('available_days')->default(0);
             $table->datetime('start_date');
