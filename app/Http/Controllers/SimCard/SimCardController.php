@@ -4,13 +4,13 @@ namespace App\Http\Controllers\SimCard;
 use App\Http\Controllers\Controller;
 use App\Domains\SimCard\Gateways\SimCardGateway;
 use App\Http\Requests\SimCard\SimCardRequest;
-use App\Domains\SimCard\Actions\SimCardAction;
-use App\Domains\SimCard\Models\Simcard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
+use App\Domains\SimCard\Actions\SimCardAction;
+use App\Domains\SimCard\Models\SimCard;
 
 class SimCardController extends Controller
 {
@@ -18,12 +18,9 @@ class SimCardController extends Controller
     {
         $simcards = SimCard::all();
         return $simcards;
-        // $gateway = new SimCardGateway();
-        // $gateway->paginate(20);
-        // return $gateway->all();
     }
     public function show($simCardId){
-        $simcard = Simcard::find($simCardId);
+        $simcard = SimCard::find($simCardId);
         abort_unless((bool)$simcard,404,'simcard not found');        
         return $simcard;
     }
@@ -35,18 +32,17 @@ class SimCardController extends Controller
             'days'=>'required',
         ]);
         $data = new CreateSimCardData(['number'=>$request->number,
-            'status'=>(int)$request->status,
+        'status'=>(int)$request->status,
         'days'=>(int)$request->days,
         'user_id'=>(int)$request->user_id
         ]);
         $simcard = (new SimCardAction)->create($data);
-        return $simcard;;
+        return $simcard;
     }
     public function delete ($simCardId){
-        $simcard = Simcard::find($simCardId);
+        $simcard = SimCard::find($simCardId);
         $simcard->delete();
         abort_unless((bool)$simcard,404,'simcard not found');
         return $simcard;
-        // return (new SimCardAction)->delete($simCardId);
     }
 }
