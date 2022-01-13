@@ -16,5 +16,5 @@ class Simcard extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
-    const STATUS_NEW = 1, STATUS_IN_PROCESS = 2, STATUS_ACTIVE =3;
+    const STATUS_NEW = 1, STATUS_IN_PROCESS = 2, STATUS_ACTIVATED =3;
 }
