@@ -10,10 +10,10 @@ class SimRecharge extends Model
     protected $table = 'sim_recharges';
 
     protected $fillable = [
-        'sim_number', 'sim_card_id', 'days','status',
-        'email'
+        'number', 'sim_card_id', 'days','status',
+        'email',
     ];
     public function simcard(){
-        return $this->belongsTo(Simcard::class);
+        return $this->belongsTo(Simcard::class,'sim_card_id');
     }
 }

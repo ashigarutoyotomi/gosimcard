@@ -24,11 +24,12 @@ class SimCardRechargeRequest extends FormRequest
     public function rules()
     {
         return [
-            'sim_sumber' => 'required|string',
+            'number' => 'required|string',
             'status' => 'required|integer',
             'sim_card_id' => 'required|integer',
             'days'=>'required|integer',
-            'email'=>'required|string',
+            'email'=>'nullable|email',
+            'user_id'=>'required|integer'
         ];
     }
 }

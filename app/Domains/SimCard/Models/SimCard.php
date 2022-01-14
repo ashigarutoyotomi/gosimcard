@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Domains\SimCard\Models\SimActivation;
 use App\Domains\SimCard\Models\SimRecharge;
+
 class Simcard extends Model
 {
     use HasFactory;
