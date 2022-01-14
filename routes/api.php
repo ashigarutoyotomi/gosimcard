@@ -55,4 +55,12 @@ Route::group(['prefix'=>'simcardactivation'],
        Route::get('/',[SimCardActivationController::class,'index']);
         Route::get('/{id}/show',[SimCardActivationController::class,'show']);       
         Route::post('/{id}/activate',[SimCardActivationController::class,'activate']);
-    });
+});
+
+//sim recharge cruds
+Route::group(['prefix'=>'simrecharge'],function(){
+    Route::get('/',[SimRechargeController::class,'index']);
+    Route::post('/store',[SimRechargeController::class,'store']);
+    Route::post('/recharge',[SimRechargeController::class,'recharge']);
+});
+Route::get('/simrecharge/{id}/show',[SimRechargeController::class,'index']);
