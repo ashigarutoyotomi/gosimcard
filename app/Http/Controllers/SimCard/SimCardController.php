@@ -41,8 +41,12 @@ class SimCardController extends Controller
     }
     public function delete ($simCardId){
         $simcard = SimCard::find($simCardId);
-        $simcard->delete();
         abort_unless((bool)$simcard,404,'simcard not found');
+        $simcard->delete();        
+        $activations = $simcard->activations;
+        foreach($activations as $activation){
+            $activation->delete();
+        }
         return $simcard;
     }
 }
