@@ -22,6 +22,7 @@ class SimCardActivationController extends Controller{
     }
     public function show($simActivationId){
         $simActivation = SimActivation::find($simActivationId);
+        abort_unless((bool)$simActivation,404,'activation not found');
         return $simActivation;
     }
     public function store(Request $request){

@@ -19,6 +19,7 @@ class Simcard extends Model
     const STATUS_NEW = 1;
     const STATUS_IN_PROCESS = 2;
     const STATUS_ACTIVATED =3;
+    
     public function activations(){
         return $this->hasMany(SimActivation::class,'sim_card_id');
     }
