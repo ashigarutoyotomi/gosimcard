@@ -4,7 +4,7 @@ namespace App\Http\Requests\SimCard;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SimCardRequest extends FormRequest
+class SimCardRechargeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,12 @@ class SimCardRequest extends FormRequest
     public function rules()
     {
         return [
-            'number' => 'required',
-            'days' => 'required|integer',
-            'user_id' => 'required|integer',
-            'status'=>'nullable'
+            'number' => 'required|string',
+            'status' => 'required|integer',
+            'sim_card_id' => 'required|integer',
+            'days'=>'required|integer',
+            'email'=>'nullable|email',
+            'user_id'=>'required|integer'
         ];
     }
 }
