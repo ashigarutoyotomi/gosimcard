@@ -14,7 +14,7 @@ use App\Domains\SimCard\Models\SimActivation;
 use App\Domains\SimCard\Models\SimRecharge;
 use Illuminate\Support\Facades\Mail;
 use App\Domains\SimCard\Models\SimCard;
-use App\Mail\SimRechargeCreated;
+use App\Mail\SimRecharged;
 
 class SimCardRechargeController extends Controller{
     public function index(){
@@ -37,13 +37,7 @@ class SimCardRechargeController extends Controller{
             'user_id'=>(int)$request->user_id,
             'status'=>SimCard::STATUS_NEW
         ]);
-        $simRecharge = (new SimCardRechargeAction)->create($data);
-        if($request->email!=null&&!empty($request->email)){
-            $simCard = SimCard::find($request->sim_card_id, $simRecharge);
-            $user = $simCard->user;
-            $simRechargeCreated = new SimRechargeCreated($simRecharge,$user);
-            Mail::to('admin@gmail.com')->send($simRechargeCreated);
-        }
+        $simRecharge = (new SimCardRechargeAction)->create($data);        
         return $simRecharge;
     }
     public function show($simRechargeId){
@@ -60,6 +54,12 @@ class SimCardRechargeController extends Controller{
         // $simRecharge->status = SimCard::STATUS_ACTIVATED;
         // $simRecharge->save();        
         $simRecharge = $simRecharge->update($simRechargeData,$simRecharge);
+        if($request->email!=null&&!empty($request->email)){
+            $simCard = SimCard::find($request->sim_card_id, $simRecharge);
+            $user = $simCard->user;
+            $simRecharged = new SimRecharged($simRecharge,$user);
+            Mail::to($request->email)->send($simRecharged);
+        }
         return $simRecharge;
     }
 }
