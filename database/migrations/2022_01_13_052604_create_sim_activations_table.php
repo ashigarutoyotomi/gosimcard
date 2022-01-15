@@ -14,16 +14,26 @@ class CreateSimActivationsTable extends Migration
     public function up()
     {
         Schema::create('sim_activations', function (Blueprint $table) {
-            $table->id()->autoincrements();
-            $table->timestamps();
+            $table->id();
             $table->integer('available_days')->default(0);
             $table->datetime('start_date');
             $table->datetime('end_date');
             $table->integer('status')->default(SimCard::STATUS_NEW);
-            $table->integer('sim_card_id');
-            $table->integer('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('sim_card_id')->references('id')->on('simcards');
+
+            $table->unsignedBigInteger('sim_card_id');
+            $table->unsignedBigInteger('user_id');
+
+            $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('sim_card_id')
+                ->references('id')
+                ->on('simcards')
+                ->onDelete('cascade');
         });
     }
 
