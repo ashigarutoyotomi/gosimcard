@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    sim recharge of {{$user->email}} for number {{$simRecharge->number}} was created 
+    sim recharged for {{$user->email}} for number {{$simRecharge->number}}, {{$simRecharge->days}} day(s) are available 
     time: {{now()}}
 </body>
 </html>

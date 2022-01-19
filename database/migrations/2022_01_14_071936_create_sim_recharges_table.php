@@ -17,7 +17,7 @@ class CreateSimRechargesTable extends Migration
             $table->id();
             $table->string('number');
             $table->integer('status')->default(SimCard::STATUS_NEW);
-            $table->string('email')->nullable();
+            $table->string('email')->nullable()->unique();
             $table->integer('days')->default(0);
 
             $table->unsignedBigInteger('sim_card_id');
