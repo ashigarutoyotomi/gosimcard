@@ -15,14 +15,17 @@ class CreateSimRechargesTable extends Migration
     {
         Schema::create('sim_recharges', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->string('number');
-            //status 1 - new, 2 -recharged
             $table->integer('status')->default(SimCard::STATUS_NEW);
             $table->string('email')->nullable();
-            $table->integer('sim_card_id');
             $table->integer('days')->default(0);
-            $table->foreign('sim_card_id')->references('id')->on('simcards');
+
+            $table->unsignedBigInteger('sim_card_id');
+            $table->foreign('sim_card_id')
+                ->references('id')
+                ->on('simcards');
+
+            $table->timestamps();
         });
     }
 

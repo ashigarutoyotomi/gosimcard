@@ -4,7 +4,7 @@ namespace App\Domains\User\DTO\UserDTO;
 
 use Spatie\DataTransferObject\DataTransferObject;
 
-class CreteUserData extends DataTransferObject
+class CreateUserData extends DataTransferObject
 {
     public string $name;
     public string $email;

@@ -2,11 +2,15 @@
 
 namespace App\Console;
 
+use App\Console\Disposable\CreateSuperAdminCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    protected $commands = [
+        CreateSuperAdminCommand::class,
+    ];
     /**
      * Define the application's command schedule.
      *
