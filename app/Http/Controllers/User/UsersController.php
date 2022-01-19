@@ -18,11 +18,34 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $gateway = new UserGateway;
+        // $gateway = new UserGateway;
 
-        return $gateway->all();
+        //filters is array
+        $filters = $request->filters;
+        $users = [];
+        $isArray = is_array($filters);
+        abort_unless($isArray, 406, 'parameter \'filters\' must an array');
+        if ($filters['role'] != null && $filters['start_created_date'] == null && $filters['end_created_date'] == null) {
+            $users = User::where('role', $filters['role'])->get();
+            return $users;
+        } elseif ($filters['role'] == null && $filters['start_created_date'] != null) {
+            $users = User::where('created_at', '>=', $filters['start_created_date'])->get();
+            return $users;
+        } else if ($filters['role'] == null & $filters['start_created_date'] != null && $filters['end_created_date'] != null) {
+            $users = User::where('created_at', '<=', $filters['end_created_date'])
+                ->where('created_at', '>=', $filters['start_created_date'])
+                ->get();
+            return $users;
+        } else {
+            $users = User::where('created_at', '<=', $filters['end_created_date'])
+                ->where('created_at', '>=', $filters['start_created_date'])
+                ->where('role', $filters['role'])
+                ->get();
+            return $users;
+        }
+        // return $gateway->all();
     }
 
     public function store(Request $request)
@@ -34,10 +57,12 @@ class UsersController extends Controller
             'role' => 'required|int'
         ]);
 
-        $data = new CreateUserData(['name' => $request->name,
+        $data = new CreateUserData([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role]);
+            'role' => $request->role
+        ]);
 
         $user = (new UserAction)->create($data);
 
@@ -83,5 +108,20 @@ class UsersController extends Controller
         abort_unless((bool)$user, 404, 'user not found');
         $user->delete();
         return $user;
+    }
+    public function search(Request $request)
+    {
+        $validated = $request->validate([
+            'column' => 'required|string',
+            'keywords' => 'required|string'
+        ]);
+        $keywords = $request->keywords;
+        if ($request->column == 'email' && $request->column != 'name') {
+            $users = User::where('email', 'like', "%" . $request->keywords . "%")->get();
+            return $users;
+        } elseif ($request->column == 'name' && $request->column != 'email') {
+            $users = User::where('name', 'like', "%" . $request->keywords . "%")->get();
+            return $users;
+        }
     }
 }
