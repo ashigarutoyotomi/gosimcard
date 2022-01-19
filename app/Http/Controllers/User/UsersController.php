@@ -21,31 +21,24 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         // $gateway = new UserGateway;
+        $filters = json_decode($request->get('filters'), true);
 
-        //filters is array
-        $filters = $request->filters;
-        $users = [];
-        $isArray = is_array($filters);
-        abort_unless($isArray, 406, 'parameter \'filters\' must an array');
-        if ($filters['role'] != null && $filters['start_created_date'] == null && $filters['end_created_date'] == null) {
-            $users = User::where('role', $filters['role'])->get();
-            return $users;
-        } elseif ($filters['role'] == null && $filters['start_created_date'] != null) {
-            $users = User::where('created_at', '>=', $filters['start_created_date'])->get();
-            return $users;
-        } else if ($filters['role'] == null & $filters['start_created_date'] != null && $filters['end_created_date'] != null) {
-            $users = User::where('created_at', '<=', $filters['end_created_date'])
-                ->where('created_at', '>=', $filters['start_created_date'])
-                ->get();
-            return $users;
-        } else {
-            $users = User::where('created_at', '<=', $filters['end_created_date'])
-                ->where('created_at', '>=', $filters['start_created_date'])
-                ->where('role', $filters['role'])
-                ->get();
-            return $users;
+        $query = User::query();
+
+        if ($filters['role']) {
+            $query->where('role', $filters['role']);
         }
-        // return $gateway->all();
+        if ($filters['start_created_date']) {
+            $query->where('created_at', '>=', $filters['start_created_date']);
+        }
+        if ($filters['end_created_date']) {
+            $query->where('created_at', '<=', $filters['end_created_date']);
+        }
+        //$request->searchBy - field for search in query
+        if ($request->keywords && $request->searchBy) {
+            $query->where($request->searchBy, $request->keywords);
+        }
+        return $query->get();
     }
 
     public function store(Request $request)
@@ -108,20 +101,5 @@ class UsersController extends Controller
         abort_unless((bool)$user, 404, 'user not found');
         $user->delete();
         return $user;
-    }
-    public function search(Request $request)
-    {
-        $validated = $request->validate([
-            'column' => 'required|string',
-            'keywords' => 'required|string'
-        ]);
-        $keywords = $request->keywords;
-        if ($request->column == 'email' && $request->column != 'name') {
-            $users = User::where('email', 'like', "%" . $request->keywords . "%")->get();
-            return $users;
-        } elseif ($request->column == 'name' && $request->column != 'email') {
-            $users = User::where('name', 'like', "%" . $request->keywords . "%")->get();
-            return $users;
-        }
     }
 }
