@@ -21,6 +21,7 @@ class SimCardController extends Controller
             'filters' => 'required|array'
         ]);
         $filters = $request->filters;
+        abort_unless(!is_array($filters), 406, 'parameter \'filters\' must be an array');
         if ($filters['status'] != null && $filters['start_created_date'] == null && $filters['end_created_date'] == null) {
             $simCards = SimCard::where('status', $filters['status'])->get();
             return $simCards;
@@ -33,7 +34,8 @@ class SimCardController extends Controller
                 ->where('created_at', '<=', $filters['end_created_at'])->get();
             return $simCards;
         } elseif ($filters['status'] != null && $filters['start_created_date'] != null && $filters['end_created_date'] != null) {
-            $simCards = SimCard::where('status', $filters['status'])->where('created_at', '>=', $filters['start_created_date'])->where('created_at', '<=', $filters['end_created_date'])->get();
+            $simCards = SimCard::where('status', $filters['status'])->where('created_at', '>=', $filters['start_created_date'])->where('created_at', '<=', $filters['end_created_date'])
+                ->get();
             return $simCards;
         }
 
