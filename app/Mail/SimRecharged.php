@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SimRechargeCreated extends Mailable
+class SimRecharged extends Mailable
 {
     use Queueable, SerializesModels;
 public $simRecharge;
@@ -32,6 +32,6 @@ public $user;
     {
         return $this
         ->from(env('APP_NAME')
-        ->text('emails.SimRechargeCreated'));
+        ->text('emails.SimRecharged'));
     }
 }
