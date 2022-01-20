@@ -17,30 +17,23 @@ class SimCardController extends Controller
 {
     public function index(Request $request)
     {
-        $validated = $request->validate([
-            'filters' => 'required|array'
-        ]);
-        $filters = $request->filters;
-        abort_unless(!is_array($filters), 406, 'parameter \'filters\' must be an array');
-        if ($filters['status'] != null && $filters['start_created_date'] == null && $filters['end_created_date'] == null) {
-            $simCards = SimCard::where('status', $filters['status'])->get();
-            return $simCards;
-        } elseif ($filters['status'] != null && $filters['start_created_date'] != null && $filters['end_created_date'] == null) {
-            $simCards = SimCard::where('status', $filters['status'])
-                ->where('created_at', '>=', $filters['start_created_date'])->get();
-            return $simCards;
-        } elseif ($filters['status'] == null && $filters['start_created_date'] != null && $filters['end_created_date'] != null) {
-            $simCards = SimCard::where('created_at', '>=', $filters['start_created_date'])
-                ->where('created_at', '<=', $filters['end_created_at'])->get();
-            return $simCards;
-        } elseif ($filters['status'] != null && $filters['start_created_date'] != null && $filters['end_created_date'] != null) {
-            $simCards = SimCard::where('status', $filters['status'])->where('created_at', '>=', $filters['start_created_date'])->where('created_at', '<=', $filters['end_created_date'])
-                ->get();
-            return $simCards;
+        $filters = json_decode($request->get('filters'));
+        $simCardsQuery = SimCard::query();
+        if ($request->get('keywords')) {
+            $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
+        } else {
+            if ($filters['status']) {
+                $simCardsQuery->where('status', $filters['status']);
+            }
+            if ($filters['start_created_date']) {
+                $simCardsQuery->where('created_at', '>=', $filters['start_created_at']);
+            }
+            if ($filters['end_created_date']) {
+                $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
+            }
         }
-
-        // $simcards = SimCard::all();
-        // return $simcards;
+        $simCards = $simCardsQuery->get();
+        return $simCards;
     }
     public function show($simCardId)
     {
