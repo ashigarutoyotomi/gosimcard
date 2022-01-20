@@ -23,14 +23,14 @@ class SimCardActivationController extends Controller
     {
         $filters = json_decode($request->get('filters'));
         $simActivationsQuery = SimActivation::query();
-        if ($request->get('keywords')) {
+        if ($request->get('keywords') && !($request->get('filters'))) {
             $simActivations = [];
             $simCards = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
             foreach ($simCards as $simCard) {
                 $simActivations[] = $simCard->activations;
             }
             return $simActivations;
-        } else {
+        } elseif (!($request->get('keywords')) && $request->get('filters')) {
             if ($filters['start_created_date']) {
                 $simActivationsQuery->where('created_at', '>=', $filters('start_created_date'));
             }
@@ -46,6 +46,31 @@ class SimCardActivationController extends Controller
             if ($filters['status']) {
                 $simActivationsQuery->where('status', $filters['status']);
             }
+        } elseif ($request->get('keywords') && $request->get('filters')) {
+            if ($filters['start_created_date']) {
+                $simActivationsQuery->where('created_at', '>=', $filters('start_created_date'));
+            }
+            if ($filters['end_created_date']) {
+                $simActivationsQuery->where('created_at', '<=', $filters['end_created_date']);
+            }
+            if ($filters['start_date']) {
+                $simActivationsQuery->where('start_date', $filters['start_date']);
+            }
+            if ($filters['end_date']) {
+                $simActivationsQuery->where('end_date', $filters['end_date']);
+            }
+            if ($filters['status']) {
+                $simActivationsQuery->where('status', $filters['status']);
+            }
+            $simActivations = [];
+            $simCards = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
+            foreach ($simCards as $simCard) {
+                $simActivations[] = $simCard->activations;
+            }
+            return $simActivations;
+        } else {
+            $simActivations = SimActivation::all();
+            return $simActivations;
         }
         return $simActivationsQuery->get();
     }
