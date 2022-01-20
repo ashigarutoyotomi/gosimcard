@@ -25,20 +25,39 @@ class UsersController extends Controller
 
         $query = User::query();
 
-        if ($filters['role']) {
-            $query->where('role', $filters['role']);
+        if ($request->get('filters') && !($request->get('keywords'))) {
+            if ($filters['role']) {
+                $query->where('role', $filters['role']);
+            }
+            if ($filters['start_created_date']) {
+                $query->where('created_at', '>=', $filters['start_created_date']);
+            }
+            if ($filters['end_created_date']) {
+                $query->where('created_at', '<=', $filters['end_created_date']);
+            }
+        } elseif (!($request->get('filters')) && $request->get('keywords')) {
+            if ($request->get('keywords')) {
+                $query->where('name', 'like', '%' . $request->get('keywords') . '%')
+                    ->where('email', 'like', '%' . $request->get('keywords') . '%');
+            }
+        } elseif ($request->get('filters') && $request->get('keywords')) {
+            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
+                ->where('email', 'like', '%' . $request->get('keywords') . '%');
+            if ($filters['role']) {
+                $query->where('role', $filters['role']);
+            }
+            if ($filters['start_created_date']) {
+                $query->where('created_at', '>=', $filters['start_created_date']);
+            }
+            if ($filters['end_created_date']) {
+                $query->where('created_at', '<=', $filters['end_created_date']);
+            }
+        } else {
+            $users = User::all();
+            return $users;
         }
-        if ($filters['start_created_date']) {
-            $query->where('created_at', '>=', $filters['start_created_date']);
-        }
-        if ($filters['end_created_date']) {
-            $query->where('created_at', '<=', $filters['end_created_date']);
-        }
-        //$request->searchBy - field for search in query
-        if ($request->get('keywords') && $request->get('searchBy')) {
-            $query->where($request->searchBy, $request->keywords);
-        }
-        return $query->get();
+        $users = $query->get();
+        return $users;
     }
 
     public function store(Request $request)
