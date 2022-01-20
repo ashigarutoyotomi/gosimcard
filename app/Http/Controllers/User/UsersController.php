@@ -25,22 +25,22 @@ class UsersController extends Controller
 
         $query = User::query();
 
-        if ($request->get('filters') && !($request->get('keywords'))) {
-            if ($filters['role']) {
+        if (!empty($request->get('filters')) && empty($request->get('keywords'))) {
+            if (!empty($filters['role'])) {
                 $query->where('role', $filters['role']);
             }
-            if ($filters['start_created_date']) {
+            if (!empty($filters['start_created_date'])) {
                 $query->where('created_at', '>=', $filters['start_created_date']);
             }
-            if ($filters['end_created_date']) {
+            if (!empty($filters['end_created_date'])) {
                 $query->where('created_at', '<=', $filters['end_created_date']);
             }
-        } elseif (!($request->get('filters')) && $request->get('keywords')) {
+        } elseif ((empty($request->get('filters'))) && !empty($request->get('keywords'))) {
             if ($request->get('keywords')) {
                 $query->where('name', 'like', '%' . $request->get('keywords') . '%')
                     ->where('email', 'like', '%' . $request->get('keywords') . '%');
             }
-        } elseif ($request->get('filters') && $request->get('keywords')) {
+        } elseif (!empty($request->get('filters')) && !empty($request->get('keywords'))) {
             $query->where('name', 'like', '%' . $request->get('keywords') . '%')
                 ->where('email', 'like', '%' . $request->get('keywords') . '%');
             if ($filters['role']) {
