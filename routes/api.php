@@ -32,7 +32,7 @@ Route::post('/simcards/store', [SimCardController::class, 'store']);
 
 //activation crud
 Route::group(
-    ['prefix' => 'simcardactivation'],
+    ['prefix' => 'simcardactivations'],
     function () {
         Route::post('/store', [SimCardActivationController::class, 'store']);
         Route::get('/', [SimCardActivationController::class, 'index']);
@@ -41,11 +41,11 @@ Route::group(
     }
 );
 
-Route::post('/simrecharge/store', [SimCardRechargeController::class, 'store']);
+Route::post('/simrecharges/store', [SimCardRechargeController::class, 'store']);
 
 
 //sim recharge cruds
-Route::group(['prefix' => 'simrecharge'], function () {
+Route::group(['prefix' => 'simrecharges'], function () {
     Route::get('/', [SimCardRechargeController::class, 'index']);
     Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
     Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);

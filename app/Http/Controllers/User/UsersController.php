@@ -25,7 +25,7 @@ class UsersController extends Controller
 
         $query = User::query();
 
-        if (!empty($request->get('filters')) && empty($request->get('keywords'))) {
+        if (!empty($request->get('filters'))) {
             if (!empty($filters['role'])) {
                 $query->where('role', $filters['role']);
             }
@@ -35,33 +35,15 @@ class UsersController extends Controller
             if (!empty($filters['end_created_date'])) {
                 $query->where('created_at', '<=', $filters['end_created_date']);
             }
-
-            $users = $query->get();
-            return $users;
-        } elseif ((empty($request->get('filters'))) && !empty($request->get('keywords'))) {
-            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
-                ->where('email', 'like', '%' . $request->get('keywords') . '%');
-            $users = $query->get();
-            return $users;
-        } elseif (!empty($request->get('filters')) && !empty($request->get('keywords'))) {
-            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
-                ->where('email', 'like', '%' . $request->get('keywords') . '%');
-            if (!empty($filters['role'])) {
-                $query->where('role', $filters['role']);
-            }
-            if (!empty($filters['start_created_date'])) {
-                $query->where('created_at', '>=', $filters['start_created_date']);
-            }
-            if (!empty($filters['end_created_date'])) {
-                $query->where('created_at', '<=', $filters['end_created_date']);
-            }
-
-            $users = $query->get();
-            return $users;
-        } else {
-            $users = User::all();
-            return $users;
         }
+
+        if (!empty($request->get('keywords'))) {
+            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
+                ->where('email', 'like', '%' . $request->get('keywords') . '%');
+        }
+
+        $users = $query->get();
+        return $users;
     }
 
     public function store(Request $request)
