@@ -89,14 +89,4 @@ class SimCardActivationController extends Controller
         // Mail::to("admin@gmail.com")->send(new SimCardActivated($simActivation));
         return $simCard;
     }
-    public function search(Request $request)
-    {
-        $keywords = $request->keywords;
-        $simCards = SimCard::where('number', 'like', '%' . $keywords . '%')->get();
-        $simActivations = [];
-        foreach ($simCards as $simCard) {
-            $simActivations[] = $simCard->activations;
-        }
-        return $simActivations;
-    }
 }
