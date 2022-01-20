@@ -21,7 +21,7 @@ class SimCardController extends Controller
         $simCardsQuery = SimCard::query();
         if ($request->get('keywords')) {
             $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
-        } else {
+        } else if ($request->get('filters') && !($request->get('keywords'))) {
             if ($filters['status']) {
                 $simCardsQuery->where('status', $filters['status']);
             }
@@ -31,6 +31,19 @@ class SimCardController extends Controller
             if ($filters['end_created_date']) {
                 $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
             }
+        } elseif ($request->get('filters') && ($request->get('keywords'))) {
+            if ($filters['status']) {
+                $simCardsQuery->where('status', $filters['status']);
+            }
+            if ($filters['start_created_date']) {
+                $simCardsQuery->where('created_at', '>=', $filters['start_created_at']);
+            }
+            if ($filters['end_created_date']) {
+                $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
+            }
+            $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
+        } else {
+            $simCards = SimCard::all();
         }
         $simCards = $simCardsQuery->get();
         return $simCards;
@@ -68,13 +81,5 @@ class SimCardController extends Controller
             $activation->delete();
         }
         return $simcard;
-    }
-    public function search(Request $request)
-    {
-        $validated = $request->validate([
-            'keywords' => 'required|string'
-        ]);
-        $simCards = SimCard::where('number', 'like', '%' . $request->keywords . '%')->get();
-        return $simCards;
     }
 }
