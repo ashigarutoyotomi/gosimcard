@@ -19,34 +19,39 @@ class SimCardController extends Controller
     {
         $filters = json_decode($request->get('filters'));
         $simCardsQuery = SimCard::query();
-        if ($request->get('keywords')) {
+        if (!empty($request->get('keywords'))) {
             $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
-        } else if ($request->get('filters') && !($request->get('keywords'))) {
-            if ($filters['status']) {
+        } else if (!empty($request->get('filters')) && empty(($request->get('keywords')))) {
+            if (!empty($filters['status'])) {
                 $simCardsQuery->where('status', $filters['status']);
             }
-            if ($filters['start_created_date']) {
+            if (!empty($filters['start_created_date'])) {
                 $simCardsQuery->where('created_at', '>=', $filters['start_created_at']);
             }
-            if ($filters['end_created_date']) {
+            if (!empty($filters['end_created_date'])) {
                 $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
             }
-        } elseif ($request->get('filters') && ($request->get('keywords'))) {
-            if ($filters['status']) {
+            $simCards = $simCardsQuery->get();
+            return $simCards;
+        } elseif (!empty($request->get('filters')) && (!empty($request->get('keywords')))) {
+            if (!empty($filters['status'])) {
                 $simCardsQuery->where('status', $filters['status']);
             }
-            if ($filters['start_created_date']) {
+            if (!empty($filters['start_created_date'])) {
                 $simCardsQuery->where('created_at', '>=', $filters['start_created_at']);
             }
-            if ($filters['end_created_date']) {
+            if (!empty($filters['end_created_date'])) {
                 $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
             }
             $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
+
+            $simCards = $simCardsQuery->get();
+            return $simCards;
         } else {
             $simCards = SimCard::all();
+            $simCards = $simCardsQuery->get();
+            return $simCards;
         }
-        $simCards = $simCardsQuery->get();
-        return $simCards;
     }
     public function show($simCardId)
     {
