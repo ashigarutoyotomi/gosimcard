@@ -14,8 +14,8 @@ use App\Domains\SimCard\Models\SimCard;
 
 class SimCardController extends Controller
 {
-    public function index()
-    {
+    public function index(Request $request)
+    {        
         $simcards = SimCard::all();
         return $simcards;
     }
