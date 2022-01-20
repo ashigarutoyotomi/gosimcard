@@ -35,7 +35,7 @@ class UsersController extends Controller
             $query->where('created_at', '<=', $filters['end_created_date']);
         }
         //$request->searchBy - field for search in query
-        if ($request->keywords && $request->searchBy) {
+        if ($request->get('keywords') && $request->get('searchBy')) {
             $query->where($request->searchBy, $request->keywords);
         }
         return $query->get();
