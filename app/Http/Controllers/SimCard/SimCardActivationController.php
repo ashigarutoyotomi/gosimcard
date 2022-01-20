@@ -23,43 +23,44 @@ class SimCardActivationController extends Controller
     {
         $filters = json_decode($request->get('filters'));
         $simActivationsQuery = SimActivation::query();
-        if ($request->get('keywords') && !($request->get('filters'))) {
+        if (!empty($request->get('keywords')) && empty(($request->get('filters')))) {
             $simActivations = [];
             $simCards = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
             foreach ($simCards as $simCard) {
                 $simActivations[] = $simCard->activations;
             }
             return $simActivations;
-        } elseif (!($request->get('keywords')) && $request->get('filters')) {
-            if ($filters['start_created_date']) {
+        } elseif (empty($request->get('keywords')) && !empty($request->get('filters'))) {
+            if (!empty($filters['start_created_date'])) {
                 $simActivationsQuery->where('created_at', '>=', $filters('start_created_date'));
             }
-            if ($filters['end_created_date']) {
+            if (!empty($filters['end_created_date'])) {
                 $simActivationsQuery->where('created_at', '<=', $filters['end_created_date']);
             }
-            if ($filters['start_date']) {
+            if (!empty($filters['start_date'])) {
                 $simActivationsQuery->where('start_date', $filters['start_date']);
             }
-            if ($filters['end_date']) {
+            if (!empty($filters['end_date'])) {
                 $simActivationsQuery->where('end_date', $filters['end_date']);
             }
-            if ($filters['status']) {
+            if (!empty($filters['status'])) {
                 $simActivationsQuery->where('status', $filters['status']);
             }
-        } elseif ($request->get('keywords') && $request->get('filters')) {
-            if ($filters['start_created_date']) {
+            return $simActivationsQuery->get();
+        } elseif (!empty($request->get('keywords')) && !empty($request->get('filters'))) {
+            if (!empty($filters['start_created_date'])) {
                 $simActivationsQuery->where('created_at', '>=', $filters('start_created_date'));
             }
-            if ($filters['end_created_date']) {
+            if (!empty($filters['end_created_date'])) {
                 $simActivationsQuery->where('created_at', '<=', $filters['end_created_date']);
             }
-            if ($filters['start_date']) {
+            if (!empty($filters['start_date'])) {
                 $simActivationsQuery->where('start_date', $filters['start_date']);
             }
-            if ($filters['end_date']) {
+            if (!empty($filters['end_date'])) {
                 $simActivationsQuery->where('end_date', $filters['end_date']);
             }
-            if ($filters['status']) {
+            if (!empty($filters['status'])) {
                 $simActivationsQuery->where('status', $filters['status']);
             }
             $simActivations = [];
@@ -67,12 +68,11 @@ class SimCardActivationController extends Controller
             foreach ($simCards as $simCard) {
                 $simActivations[] = $simCard->activations;
             }
-            return $simActivations;
+            return array_merge($simActivations, $simActivationsQuery->get()->toArray());
         } else {
             $simActivations = SimActivation::all();
             return $simActivations;
         }
-        return $simActivationsQuery->get();
     }
     public function show($simActivationId)
     {
