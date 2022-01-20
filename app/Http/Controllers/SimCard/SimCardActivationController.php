@@ -21,33 +21,30 @@ class SimCardActivationController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->filters;
-        abort_unless(!is_array($filters), 406, 'parameter \'filters\' must be array');
-        if ($filters['status'] != null && $filters['start_date'] == null && $filters['end_date'] == null && $filters['start_created_date'] == null) {
-            $simActivations = SimActivation::where('status', $filters['status'])->get();
+        $filters = json_decode($request->get('filters'));
+        $simActivationsQuery = SimActivation::query();
+        if ($request->get('keywords')) {
+            $simCard = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
+            $simActivations = $simCard->activations;
             return $simActivations;
-        } elseif ($filters['status'] == null && $filters['start_date'] != null && $filters['end_date'] == null && $filters['start_created_date'] == null) {
-            $simActivations = SimActivation::where('start_date', $filters['start_date'])->get();
-            return $simActivations;
-        } elseif ($filters['status'] == null && $filters['start_date'] != null && $filters['end_date'] != null && $filters['start_created_date'] == null) {
-            $simActivations = SimActivation::where('start_date', $filters['start_date'])->where('end_date', $filters['end_date'])->get();
-            return $simActivations;
-        } elseif ($filters['status'] != null && $filters['start_date'] != null && $filters['end_date'] != null && $filters['start_created_date'] == null) {
-            $simActivations = SimActivation::where('start_date', $filters['start_date'])->where('end_date', $filters['end_date'])->where('status', $filters['status'])
-                ->get();
-            return $simActivations;
-        } elseif ($filters['status'] != null && $filters['start_date'] == null && $filters['end_date'] == null && $filters['start_created_date'] != null) {
-            if ($filters['end_created_date'] != null) {
-                $simActivations = SimActivation::where('created_at', '>=', $filters['start_created_date'])->where('created_at', '<=', $filters['end_created_date'])->where('status', $filters['status'])
-                    ->get();
-                return $simActivations;
+        } else {
+            if ($filters['start_created_date']) {
+                $simActivationsQuery->where('created_at', '>=', $filters('start_created_date'));
             }
-            $simActivations = SimActivation::where('created_at', '>=', $filters['start_created_date'])->where('status', $filters['status'])
-                ->get();
-            return $simActivations;
+            if ($filters['end_created_date']) {
+                $simActivationsQuery->where('created_at', '<=', $filters['end_created_date']);
+            }
+            if ($filters['start_date']) {
+                $simActivationsQuery->where('start_date', $filters['start_date']);
+            }
+            if ($filters['end_date']) {
+                $simActivationsQuery->where('end_date', $filters['end_date']);
+            }
+            if ($filters['status']) {
+                $simActivationsQuery->where('status', $filters['status']);
+            }
         }
-        // $simActivations = SimActivation::all();
-        // return $simActivations;
+        return $simActivationsQuery->get();
     }
     public function show($simActivationId)
     {
