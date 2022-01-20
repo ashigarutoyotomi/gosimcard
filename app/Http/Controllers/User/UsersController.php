@@ -39,7 +39,7 @@ class UsersController extends Controller
 
         if (!empty($request->get('keywords'))) {
             $query->where('name', 'like', '%' . $request->get('keywords') . '%')
-                ->where('email', 'like', '%' . $request->get('keywords') . '%');
+                ->orWhere('email', 'like', '%' . $request->get('keywords') . '%');
         }
 
         $users = $query->get();
