@@ -49,19 +49,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/update', [UsersController::class, "update"]);
         Route::delete('/{id}/delete', [UsersController::class, 'delete']);
     });
-
 });
 
 //create a new simcard
 Route::post('/simcards/store', [SimCardController::class, 'store']);
 
 //activation crud
-Route::group(['prefix' => 'simcardactivation'],
+Route::group(
+    ['prefix' => 'simcardactivations'],
     function () {
         Route::post('/store', [SimCardActivationController::class, 'store']);
         Route::get('/', [SimCardActivationController::class, 'index']);
         Route::get('/{id}/show', [SimCardActivationController::class, 'show']);
         Route::post('/{id}/activate', [SimCardActivationController::class, 'activate']);
-    });
+    }
+);
 
 Route::post('/simrecharge/store', [SimCardRechargeController::class, 'store']);
