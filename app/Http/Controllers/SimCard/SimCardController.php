@@ -37,6 +37,7 @@ class SimCardController extends Controller
         return $simCards;
     }
 
+
     public function show($simCardId)
     {
         $simcard = SimCard::find($simCardId);

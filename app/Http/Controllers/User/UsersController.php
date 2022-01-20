@@ -18,11 +18,32 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $gateway = new UserGateway;
+        // $gateway = new UserGateway;
+        $filters = json_decode($request->get('filters'), true);
 
-        return $gateway->all();
+        $query = User::query();
+
+        if (!empty($request->get('filters'))) {
+            if (!empty($filters['role'])) {
+                $query->where('role', $filters['role']);
+            }
+            if (!empty($filters['start_created_date'])) {
+                $query->where('created_at', '>=', $filters['start_created_date']);
+            }
+            if (!empty($filters['end_created_date'])) {
+                $query->where('created_at', '<=', $filters['end_created_date']);
+            }
+        }
+
+        if (!empty($request->get('keywords'))) {
+            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
+                ->orWhere('email', 'like', '%' . $request->get('keywords') . '%');
+        }
+
+        $users = $query->get();
+        return $users;
     }
 
     public function store(Request $request)
@@ -34,10 +55,12 @@ class UsersController extends Controller
             'role' => 'required|int'
         ]);
 
-        $data = new CreateUserData(['name' => $request->name,
+        $data = new CreateUserData([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role]);
+            'role' => $request->role
+        ]);
 
         $user = (new UserAction)->create($data);
 
