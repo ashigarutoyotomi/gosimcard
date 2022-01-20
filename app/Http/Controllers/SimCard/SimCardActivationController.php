@@ -24,8 +24,11 @@ class SimCardActivationController extends Controller
         $filters = json_decode($request->get('filters'));
         $simActivationsQuery = SimActivation::query();
         if ($request->get('keywords')) {
-            $simCard = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
-            $simActivations = $simCard->activations;
+            $simActivations = [];
+            $simCards = SimCard::where('number', 'like', '%' . $request->get('keywords') . '%')->get();
+            foreach ($simCards as $simCard) {
+                $simActivations[] = $simCard->activations;
+            }
             return $simActivations;
         } else {
             if ($filters['start_created_date']) {
