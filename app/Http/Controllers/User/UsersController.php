@@ -96,36 +96,17 @@ class UsersController extends Controller
             'role' => 'nullable|integer',
             'id' => 'required|integer'
         ]);
-        $user = User::find($request->id);
-        abort_unless((bool)$user, 404, 'User not found');
-        if (!empty($request->name)) {
-            $user->name = $request->name;
-        }
-        if (!empty($request->password)) {
-            $user->password = Hash::make($request->password);
-        }
-        if (!empty($request->role)) {
-            $user->role = $request->role;
-        }
-        if (!empty($request->email)) {
-            $userEmail = DB::table('users')->where('email', $user->email)->first();
-            if ($userEmail->email != $user->email) {
-                $user->email = $request->email;
-            } else {
-                abort(406, 'this user email already exists');
-            }
-        }
-        $user->save();
-        // $data = new UpdateUserData([
-        //     'name' => $request->name,
-        //     'password' => $request->password,
-        //     'email' => $request->email,
-        //     'role' => (int)$request->role,
-        //     'id' => (int)$userId
-        // ]);
 
-        // $user = (new UserAction)->update($data);
-        // return $user;
+        $data = new UpdateUserData([
+            'name' => $request->name,
+            'password' => $request->password,
+            'email' => $request->email,
+            'role' => (int)$request->role,
+            'id' => (int)$userId
+        ]);
+
+        $user = (new UserAction)->update($data);
+        return $user;
     }
 
     public function delete($userId)
