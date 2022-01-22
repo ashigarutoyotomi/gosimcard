@@ -109,7 +109,7 @@ class UsersController extends Controller
         }
         if (!empty($request->email)) {
             $userEmail = DB::table('users')->where('email', $user->email)->first();
-            if ($userEmail != $user->email) {
+            if ($userEmail->email != $user->email) {
                 $user->email = $request->email;
             } else {
                 abort(406, 'this user email already exists');
