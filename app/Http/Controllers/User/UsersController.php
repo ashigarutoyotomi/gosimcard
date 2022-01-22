@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use Illuminate\Support\Facades\DB;
 use App\Domains\User\Actions\UserAction;
 use App\Domains\User\DTO\UserDTO\CreateUserData;
 use App\Domains\User\DTO\UserDTO\UpdateUserData;
@@ -50,7 +51,7 @@ class UsersController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'password' => 'required|string|max:50',
             'role' => 'required|int'
         ]);
@@ -88,16 +89,43 @@ class UsersController extends Controller
 
     public function update(Request $request, $userId)
     {
-        $data = new UpdateUserData([
-            'name' => $request->name,
-            'password' => $request->password,
-            'email' => $request->email,
-            'role' => (int)$request->role,
-            'id' => (int)$userId
+        $validated = $request->validated([
+            'name' => 'nullable|string',
+            'password' => 'nullable|string',
+            'email' => 'nullable|string',
+            'role' => 'nullable|integer',
+            'id' => 'required|integer'
         ]);
+        $user = User::find($request->id);
+        abort_unless((bool)$user, 404, 'User not found');
+        if (!empty($request->name)) {
+            $user->name = $request->name;
+        }
+        if (!empty($request->password)) {
+            $user->password = Hash::make($request->password);
+        }
+        if (!empty($request->role)) {
+            $user->role = $request->role;
+        }
+        if (!empty($request->email)) {
+            $userEmail = DB::table('users')->where('email', $user->email)->first();
+            if ($userEmail != $user->email) {
+                $user->email = $request->email;
+            } else {
+                abort(406, 'this user email already exists');
+            }
+        }
+        $user->save();
+        // $data = new UpdateUserData([
+        //     'name' => $request->name,
+        //     'password' => $request->password,
+        //     'email' => $request->email,
+        //     'role' => (int)$request->role,
+        //     'id' => (int)$userId
+        // ]);
 
-        $user = (new UserAction)->update($data);
-        return $user;
+        // $user = (new UserAction)->update($data);
+        // return $user;
     }
 
     public function delete($userId)
