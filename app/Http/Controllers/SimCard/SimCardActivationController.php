@@ -63,11 +63,11 @@ class SimCardActivationController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'status' => "nullable|integer",
-            'sim_card_id' => 'required|integer',
-            'number' => 'nullable|string',
+            'number' => 'required|string',
             'user_id' => 'nullable|integer'
         ]);
         $simCard = SimCard::where('number', $request->number)->first();
+        abort_unless((bool)$simCard,404,'simcard not found');
         if ($simCard != null) {
             $request->sim_card_id = $simCard->id;
         }
@@ -75,7 +75,7 @@ class SimCardActivationController extends Controller
             'available_days' => (int)$request->available_days,
             'end_date' => $request->end_date,
             'start_date' => $request->start_date,
-            'user_id' => (int) $request->user_id,
+            'user_id' => $request->user_id,
             'status' => $request->status,
             'number' => $request->number
         ]);

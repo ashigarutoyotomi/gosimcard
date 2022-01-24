@@ -12,7 +12,7 @@ class CreateSimCardActivationData extends DataTransferObject
     public string $start_date;
     public ?int $user_id;
     public int $sim_card_id;
-    public ?string $number;
+    public string $number;
     public ?int $status;
 
     public static function fromRequest(SimCardActivationRequest $request): CreateSimCardActivationData

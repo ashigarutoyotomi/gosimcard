@@ -22,7 +22,7 @@ class CreateSimActivationsTable extends Migration
             $table->integer('status')->nullable();
             $table->unsignedBigInteger('sim_card_id');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('number')->nullable();
+            $table->string('number');
             $table->timestamps();
             $table->foreign('user_id')
                 ->references('id')
