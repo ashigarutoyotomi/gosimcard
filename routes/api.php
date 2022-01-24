@@ -39,16 +39,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}/show', [SimCardController::class, 'show']);
         Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
     });
-
-    //users crud
-    Route::group(['prefix' => '/users'], function () {
-        Route::get('/', [UsersController::class, 'index']);
-        Route::post('/store', [UsersController::class, 'store']);
-        Route::get('/{id}/show', [UsersController::class, 'show']);
-        Route::get('/{id}/edit', [UsersController::class, 'edit']);
-        Route::post('/{id}/update', [UsersController::class, "update"]);
-        Route::delete('/{id}/delete', [UsersController::class, 'delete']);
-    });
 });
 
 //create a new simcard
@@ -66,3 +56,13 @@ Route::group(
 );
 
 Route::post('/simrecharges/store', [SimCardRechargeController::class, 'store']);
+
+//users crud
+Route::group(['prefix' => '/users'], function () {
+    Route::get('/', [UsersController::class, 'index']);
+    Route::post('/store', [UsersController::class, 'store']);
+    Route::get('/{id}/show', [UsersController::class, 'show']);
+    Route::get('/{id}/edit', [UsersController::class, 'edit']);
+    Route::post('/{id}/update', [UsersController::class, "update"]);
+    Route::delete('/{id}/delete', [UsersController::class, 'delete']);
+});

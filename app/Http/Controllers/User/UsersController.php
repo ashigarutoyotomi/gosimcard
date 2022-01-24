@@ -60,7 +60,7 @@ class UsersController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => (int)$request->role
         ]);
 
         $user = (new UserAction)->create($data);
@@ -89,18 +89,19 @@ class UsersController extends Controller
 
     public function update(Request $request, $userId)
     {
-        $validated = $request->validated([
+        $validated = $request->validate([
             'name' => 'nullable|string',
             'password' => 'nullable|string',
             'email' => 'nullable|string',
-            'role' => 'nullable|integer',
-            'id' => 'required|integer'
+            'role' => 'nullable|integer'
         ]);
-        $oldUser = User::find($request->id);
+        $oldUser = User::find($userId);
         abort_unless((bool)$oldUser, 404, 'user not found');
         $email = DB::table('users')->where('email', $request->email)->first();
-        if ($email->email == $reqeust->email) {
-            abort(406, 'this email already exists');
+        if ($email != null) {
+            if ($email->email == $request->email && $oldUser->email != $email->email) {
+                abort(406, 'this email already exists');
+            }
         }
         $data = new UpdateUserData([
             'name' => !empty($request->name) ? $request->name : $oldUser->name,
