@@ -12,6 +12,7 @@ use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
 use App\Domains\SimCard\Actions\SimCardAction;
 use App\Domains\SimCard\Models\SimCard;
+use App\Models\User;
 
 class SimCardController extends Controller
 {
@@ -47,16 +48,20 @@ class SimCardController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'number' => 'required|string',
-            'status' => 'required',
-            'user_id' => 'required',
-            'days' => 'required',
+            'status' => 'nullable|integer',
+            'user_id' => 'nullable|integer',
+            'days' => 'nullable|integer',
+            'number' => 'required|string|unique:simcards'
         ]);
+        if (!empty($request->user_id)) {
+            $user = User::find($request->user_id);
+            abort_unless((bool)$user, 404, 'user not found');
+        }
         $data = new CreateSimCardData([
             'number' => $request->number,
-            'status' => (int)$request->status,
+            'status' => $request->status,
             'days' => (int)$request->days,
-            'user_id' => (int)$request->user_id
+            'user_id' => $request->user_id
         ]);
         $simcard = (new SimCardAction)->create($data);
         return $simcard;
