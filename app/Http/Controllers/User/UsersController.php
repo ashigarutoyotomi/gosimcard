@@ -96,12 +96,13 @@ class UsersController extends Controller
             'role' => 'nullable|integer',
             'id' => 'required|integer'
         ]);
-
+        $oldUser = User::find($request->id);
+        abort_unless((bool)$oldUser, 404, 'user not found');
         $data = new UpdateUserData([
-            'name' => $request->name,
-            'password' => $request->password,
-            'email' => $request->email,
-            'role' => (int)$request->role,
+            'name' => !empty($request->name) ? $request->name : $oldUser->name,
+            'password' => !empty($request->password) ? Hash::make($request->password) : $oldUser->password,
+            'email' => !empty($request->email) ? $request->email : $oldUser->email,
+            'role' => !empty($request->role) ? $request->role : $oldUser->role,
             'id' => (int)$userId
         ]);
 
