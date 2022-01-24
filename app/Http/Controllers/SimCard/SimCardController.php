@@ -48,9 +48,10 @@ class SimCardController extends Controller
     {
         $validated = $request->validate([
             'number' => 'required|string',
-            'status' => 'required',
-            'user_id' => 'required',
-            'days' => 'required',
+            'status' => 'nullable|integer',
+            'user_id' => 'nullable|integer',
+            'days' => 'nullable|integer',
+            'number' => 'required|string|unique:simcards,number,' . $request->number,
         ]);
         $data = new CreateSimCardData([
             'number' => $request->number,
