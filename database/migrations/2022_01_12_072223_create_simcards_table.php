@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Domains\SimCard\Models\SimCard;
+
 class CreateSimcardsTable extends Migration
 {
     /**
@@ -16,13 +17,10 @@ class CreateSimcardsTable extends Migration
         Schema::create('simcards', function (Blueprint $table) {
             $table->id();
             $table->string('number')->unique();
-            $table->integer('status')->default(SimCard::STATUS_NEW);
+            $table->integer('status')->nullable();
             $table->integer('days')->default(0);
-
             $table->unsignedBigInteger('user_id')->nullable();
-
             $table->timestamps();
-
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
