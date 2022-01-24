@@ -98,6 +98,10 @@ class UsersController extends Controller
         ]);
         $oldUser = User::find($request->id);
         abort_unless((bool)$oldUser, 404, 'user not found');
+        $email = DB::table('users')->where('email', $request->email)->first();
+        if ($email->email == $reqeust->email) {
+            abort(406, 'this email already exists');
+        }
         $data = new UpdateUserData([
             'name' => !empty($request->name) ? $request->name : $oldUser->name,
             'password' => !empty($request->password) ? Hash::make($request->password) : $oldUser->password,
