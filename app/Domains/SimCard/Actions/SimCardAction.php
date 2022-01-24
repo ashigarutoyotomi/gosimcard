@@ -13,6 +13,7 @@ class SimCardAction
     {
         return SimCard::create($data->toArray());
     }
+
     public function update(UpdateSimCardData $data)
     {
         $simcard = (new SimCardGateway)->getById($data->id);
@@ -24,6 +25,7 @@ class SimCardAction
         $simcard->save();
         return $simcard;
     }
+
     public function delete(int $simcardId)
     {
         $simcard = (new SimcardGateway)->getById($simcardId);

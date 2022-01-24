@@ -6,10 +6,10 @@ use Spatie\DataTransferObject\DataTransferObject;
 
 class CreateSimCardData extends DataTransferObject
 {
-    public int $user_id;
+    public ?int $user_id;
     public string $number;
-    public int $days;
-    public int $status;
+    public ?int $days;
+    public ?int $status;
 
     public static function fromRequest(SimCardRequest $request) : CreateSimCardData
     {
@@ -18,7 +18,7 @@ class CreateSimCardData extends DataTransferObject
             'days' => (int) $request->days,
             'user_id'=>(int)$request->user_id,
             'status'=>(int)$request->status
-        ];        
+        ];
         return new self($data);
     }
 }

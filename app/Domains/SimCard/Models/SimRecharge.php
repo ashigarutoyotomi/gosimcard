@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Domains\SimCard\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Domains\SimCard\Models\Simcard;
+use App\Domains\SimCard\Models\SimCard;
+
 class SimRecharge extends Model
 {
     use HasFactory;
@@ -14,6 +16,6 @@ class SimRecharge extends Model
         'email',
     ];
     public function simcard(){
-        return $this->belongsTo(Simcard::class,'sim_card_id');
+        return $this->belongsTo(SimCard::class,'sim_card_id');
     }
 }

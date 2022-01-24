@@ -22,6 +22,7 @@ class User extends Authenticatable
         'password',
         'role',
     ];
+
     /**
      * attributes that should be hiden for serialization
      *
@@ -31,6 +32,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
     /**
      * The attributes that should be cast.
      *
@@ -39,6 +41,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
     const USER_ROLE_ADMIN = 1;
-    const USER_ROLE_SUPER_ADMIN = 999;
+    const USER_ROLE_MANAGER = 2;
+    const USER_ROLE_CUSTOMER = 3;
 }

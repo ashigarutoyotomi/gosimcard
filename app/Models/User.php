@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-use App\Domains\SimCard\Models\Simcard;
+use App\Domains\SimCard\Models\SimCard;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,6 +45,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     public function simcards(){
-        return $this->hasMany(Simcard::class,'user_id');
+        return $this->hasMany(SimCard::class,'user_id');
     }
 }

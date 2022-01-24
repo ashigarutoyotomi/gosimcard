@@ -48,14 +48,20 @@ class SimCardActivationController extends Controller
                 $simActivationsQuery->where('sim_activations.status', $filters['status']);
             }
         }
+
+        $simActivationsQuery->with('simcard');
+
         return response()->json($simActivationsQuery->get());
     }
+
     public function show($simActivationId)
     {
-        $simActivation = SimActivation::find($simActivationId);
+        $simActivation = SimActivation::with('simcard')
+            ->find($simActivationId);
         abort_unless((bool)$simActivation, 404, 'activation not found');
         return $simActivation;
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -65,16 +71,20 @@ class SimCardActivationController extends Controller
             'status' => "nullable|integer",
             'sim_card_id' => 'required|integer'
         ]);
+
         $data = new CreateSimCardActivationData([
             'available_days' => (int)$request->available_days,
-            'end_date' => (int)$request->end_date,
-            'start_date' => (int)$request->start_date,
-            'user_id' => (int)$request->user_id,
+            'end_date' => $request->end_date,
+            'start_date' => $request->start_date,
             'sim_card_id' => (int)$request->sim_card_id,
-            'status' => SimCard::STATUS_NEW
+            'status' => SimActivation::STATUS_NEW,
+            'user_id' => 1,
         ]);
+
         $simActivation = (new SimCardActivationAction)->create($data);
+
         // Mail::to('admin@gmail.com')->send(new SimCardActivationCreated($simActivation));
+
         return $simActivation;
     }
     public function activate(Request $request, $simActivationId)
@@ -88,5 +98,13 @@ class SimCardActivationController extends Controller
         $simActivation->save();
         // Mail::to("admin@gmail.com")->send(new SimCardActivated($simActivation));
         return $simCard;
+    }
+
+    public function delete($id)
+    {
+        $simActivation = SimActivation::find($id);
+        abort_unless((bool)$simActivation, 404, 'Sim activation not found');
+        $simActivation->delete();
+        return $simActivation;
     }
 }

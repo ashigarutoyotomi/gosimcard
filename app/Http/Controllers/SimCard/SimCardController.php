@@ -37,30 +37,34 @@ class SimCardController extends Controller
         return $simCards;
     }
 
-
     public function show($simCardId)
     {
         $simcard = SimCard::find($simCardId);
         abort_unless((bool)$simcard, 404, 'simcard not found');
         return $simcard;
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'number' => 'required|string',
-            'status' => 'required',
-            'user_id' => 'required',
-            'days' => 'required',
+            'status' => 'nullable',
+            'user_id' => 'nullable',
+            'days' => 'nullable',
         ]);
+
         $data = new CreateSimCardData([
             'number' => $request->number,
-            'status' => (int)$request->status,
+            'status' => $request->status ? (int)$request->status : SimCard::STATUS_NEW,
             'days' => (int)$request->days,
-            'user_id' => (int)$request->user_id
+            'user_id' => null,
         ]);
+
         $simcard = (new SimCardAction)->create($data);
+
         return $simcard;
     }
+
     public function delete($simCardId)
     {
         $simcard = SimCard::find($simCardId);
