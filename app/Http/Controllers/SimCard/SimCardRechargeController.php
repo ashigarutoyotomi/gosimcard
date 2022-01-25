@@ -32,7 +32,7 @@ class SimCardRechargeController extends Controller
             'user_id' => 'nullable|integer',
             'status' => "nullable|integer",
             'number' => 'required|string',
-            'email' => 'nullable|string|unique:email'
+            'email' => 'nullable|string'
         ]);
 
         $simCard = SimCard::where('number', $request->number)->first();
@@ -41,16 +41,12 @@ class SimCardRechargeController extends Controller
         if (empty($request->user_id)) {
             abort(406, 'user id must be provided');
         }
-        // $isEmailUnique = SimRecharge::where('email', $request->email)->get();
-        // if (count(($isEmailUnique->modelKeys())) != 1) {
-        //     abort(403, 'email already exists');
-        // }
         $data = new CreateSimCardRechargeData([
-            // 'days' => $request->days,
+            'days' => (int)$request->days,
             'number' => $request->number,
             'sim_card_id' => $sim_card_id,
             'user_id' => (int)$request->user_id,
-            'status' => $request->status,
+            'status' => !empty($request->status) ? (int)$request->status : null,
             'email' => $request->email
         ]);
         $simRecharge = (new SimCardRechargeAction)->create($data);
