@@ -27,9 +27,9 @@ class SimCardRechargeRequest extends FormRequest
             'number' => 'required|string',
             'status' => 'required|integer',
             'sim_card_id' => 'required|integer',
-            'days'=>'required|integer',
-            'email'=>'nullable|email',
-            'user_id'=>'required|integer'
+            'days' => 'required|integer',
+            'email' => 'nullable|email',
+            'user_id' => 'required|integer'
         ];
     }
 }

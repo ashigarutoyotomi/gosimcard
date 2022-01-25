@@ -21,6 +21,7 @@ class SimCardRechargeAction
         $simcardRecharge->status = $data->status;
         $simcardRecharge->sim_card_id = $data->sim_card_id;
         $simcardRecharge->number = $data->number;
+        $simcardRecharge->email = $data->email;
         $simcardRecharge->save();
         return $simcardRecharge;
     }
@@ -31,5 +32,4 @@ class SimCardRechargeAction
         $simcardRecharge->delete();
         return $simcardRecharge;
     }
-
 }

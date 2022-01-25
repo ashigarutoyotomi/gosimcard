@@ -26,12 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, "me"]);
     Route::get('/logout', [AuthController::class, 'logout']);
 
-    //sim recharge cruds
-    Route::group(['prefix' => 'simrecharges'], function () {
-        Route::get('/', [SimCardRechargeController::class, 'index']);
-        Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
-        Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
-    });
+
 
     //simcards crud
     Route::group(['prefix' => '/simcards'], function () {
@@ -66,3 +61,11 @@ Route::group(
 );
 
 Route::post('/simrecharges/store', [SimCardRechargeController::class, 'store']);
+
+
+//sim recharge cruds
+Route::group(['prefix' => 'simrecharges'], function () {
+    Route::get('/', [SimCardRechargeController::class, 'index']);
+    Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
+    Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
+});

@@ -43,7 +43,7 @@ class SimCardRechargeController extends Controller
             'number' => $request->number,
             'sim_card_id' => $sim_card_id,
             'user_id' => (int)$request->user_id,
-            'status' => !empty($request->status) ? (int)$request->status : null,
+            'status' => !empty($request->status) ? (int)$request->status : SimCard::STATUS_NEW,
             'email' => $request->email
         ]);
         $simRecharge = (new SimCardRechargeAction)->create($data);
@@ -58,17 +58,14 @@ class SimCardRechargeController extends Controller
     {
         $simRechargeData = UpdateSimCardRechargeData::fromRequest($simRechargeId, $request);
         $simRecharge = new SimCardRechargeAction();
-        $isEmailUnique = SimRecharge::where('email', $request->email)->get();
-        if (count(($isEmailUnique->modelKeys())) != 1) {
-            abort(403, 'email already exists');
-        }
+
         abort_unless((bool)$simRecharge, 404, 'not found');
         $simRecharge = $simRecharge->update($simRechargeData, $simRecharge);
         if ($request->email != null && !empty($request->email)) {
-            $simCard = Simcard::find($request->sim_card_id, $simRecharge);
+            $simCard = SimCard::find($request->sim_card_id);
             $user = $simCard->user;
             $simRecharged = new SimRecharged($simRecharge, $user);
-            Mail::to($request->email)->send($simRecharged);
+            // Mail::to($request->email)->send($simRecharged);
         }
         return $simRecharge;
     }
