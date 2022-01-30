@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\SimCard;
 
-use App\Http\Controllers\Controller;
-use App\Domains\SimCard\Gateways\SimCardGateway;
-use App\Http\Requests\SimCard\SimCardRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardActivationData;
-use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
-use App\Domains\SimCard\Actions\SimCardActivationAction;
-use App\Domains\SimCard\Models\SimActivation;
-use App\Domains\SimCard\Models\SimCard;
+use App\Mail\SimCardActivated;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SimCardActivationCreated;
-use App\Mail\SimCardActivated;
+use App\Domains\SimCard\Models\SimCard;
+use App\Domains\SimCard\Models\SimActivation;
+use App\Http\Requests\SimCard\SimCardRequest;
+use App\Domains\SimCard\Gateways\SimCardGateway;
+use App\Domains\SimCard\Actions\SimCardActivationAction;
+use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
+use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardActivationData;
 
 class SimCardActivationController extends Controller
 {
@@ -63,15 +63,21 @@ class SimCardActivationController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date',
             'status' => "nullable|integer",
-            'sim_card_id' => 'required|integer'
+            'number' => 'required|string',
+            'user_id' => 'nullable|integer'
         ]);
+        $simCard = SimCard::where('number', $request->number)->first();
+        abort_unless((bool)$simCard,404,'simcard not found');
+        if ($simCard != null) {
+            $request->sim_card_id = $simCard->id;
+        }
         $data = new CreateSimCardActivationData([
             'available_days' => (int)$request->available_days,
-            'end_date' => (int)$request->end_date,
-            'start_date' => (int)$request->start_date,
-            'user_id' => (int)$request->user_id,
-            'sim_card_id' => (int)$request->sim_card_id,
-            'status' => SimCard::STATUS_NEW
+            'end_date' => $request->end_date,
+            'start_date' => $request->start_date,
+            'user_id' => $request->user_id,
+            'status' => $request->status,
+            'number' => $request->number
         ]);
         $simActivation = (new SimCardActivationAction)->create($data);
         // Mail::to('admin@gmail.com')->send(new SimCardActivationCreated($simActivation));

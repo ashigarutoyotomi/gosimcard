@@ -19,9 +19,10 @@ class CreateSimActivationsTable extends Migration
             $table->integer('available_days')->default(0);
             $table->datetime('start_date');
             $table->datetime('end_date');
-            $table->integer('status')->default(SimCard::STATUS_NEW);
+            $table->integer('status')->nullable();
             $table->unsignedBigInteger('sim_card_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('number');
             $table->timestamps();
             $table->foreign('user_id')
                 ->references('id')
