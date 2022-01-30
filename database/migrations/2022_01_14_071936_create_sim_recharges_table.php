@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Domains\SimCard\Models\SimCard;
+
 class CreateSimRechargesTable extends Migration
 {
     /**
@@ -19,7 +20,6 @@ class CreateSimRechargesTable extends Migration
             $table->integer('status')->default(SimCard::STATUS_NEW);
             $table->string('email')->nullable()->unique();
             $table->integer('days')->default(0);
-
             $table->unsignedBigInteger('sim_card_id');
             $table->foreign('sim_card_id')
                 ->references('id')
