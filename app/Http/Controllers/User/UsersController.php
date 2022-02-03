@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use Illuminate\Support\Facades\DB;
 use App\Domains\User\Actions\UserAction;
 use App\Domains\User\DTO\UserDTO\CreateUserData;
 use App\Domains\User\DTO\UserDTO\UpdateUserData;
@@ -51,7 +52,7 @@ class UsersController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users',
             'password' => 'required|string|max:50',
             'role' => 'required|int'
         ]);
@@ -89,9 +90,17 @@ class UsersController extends Controller
 
     public function update(Request $request, $userId)
     {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'password' => 'nullable|string',
+            'email' => 'required|email|unique:users,email,' . $userId,
+            'role' => 'required|integer'
+        ]);
+        $oldUser = User::find($userId);
+        abort_unless((bool)$oldUser, 404, 'user not found');
         $data = new UpdateUserData([
             'name' => $request->name,
-            'password' => $request->password,
+            'password' => !empty($request->password) ? Hash::make($request->password) : $oldUser->password,
             'email' => $request->email,
             'role' => (int)$request->role,
             'id' => (int)$userId

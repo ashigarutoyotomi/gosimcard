@@ -27,8 +27,10 @@ class SimCardActivationRequest extends FormRequest
             'available_days' => 'require|integer',
             'start_date' => 'nullable|integer',
             'user_id' => 'required|integer',
-            'end_date'=>'required',
-            'sim_card_id'=>'required'
+            'end_date' => 'required|date',
+            'sim_card_id' => 'required|integer',
+            'number' => 'nullable|string',
+            'status' => 'nullable|integer'
         ];
     }
 }

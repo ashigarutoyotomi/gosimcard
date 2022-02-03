@@ -25,42 +25,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, "me"]);
     Route::get('/logout', [AuthController::class, 'logout']);
 
-    //users
-    Route::group(['prefix' => '/users'], function () {
-        Route::get('/', [UsersController::class, 'index']);
-        Route::get('/{id}/show', [UsersController::class, 'show']);
-        Route::get('/{id}/edit', [UsersController::class, 'edit']);
-        Route::post('/store', [UsersController::class, 'store']);
-        Route::post('/{id}/update', [UsersController::class, "update"]);
-        Route::delete('/{id}/delete', [UsersController::class, 'delete']);
-
-        Route::get('/charts/line/customers-data', [UsersController::class, 'getChartLineCustomersData']);
-    });
-
-    //sim cards
-    Route::group(['prefix' => '/sim-cards'], function () {
+    //simcards crud
+    Route::group(['prefix' => '/simcards'], function () {
         Route::get('/', [SimCardController::class, 'index']);
         Route::get('/{id}/show', [SimCardController::class, 'show']);
-        Route::post('/sim-cards/store', [SimCardController::class, 'store']);
         Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
     });
 
-    //sim activations
-    Route::group(
-        ['prefix' => 'sim-card-activations'],
-        function () {
-            Route::get('/', [SimCardActivationController::class, 'index']);
-            Route::get('/{id}/show', [SimCardActivationController::class, 'show']);
-            Route::post('/{id}/activate', [SimCardActivationController::class, 'activate']);
-            Route::delete('/{id}/delete', [SimCardActivationController::class, 'delete']);
-        }
-    );
-
-    //sim rechargea
-    Route::group(['prefix' => 'sim-card-recharges'], function () {
-        Route::get('/', [SimCardRechargeController::class, 'index']);
-        Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
-        Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
+    //users crud
+    Route::group(['prefix' => '/users'], function () {
+        Route::get('/', [UsersController::class, 'index']);
+        Route::post('/store', [UsersController::class, 'store']);
+        Route::get('/{id}/show', [UsersController::class, 'show']);
+        Route::get('/{id}/edit', [UsersController::class, 'edit']);
+        Route::post('/{id}/update', [UsersController::class, "update"]);
+        Route::delete('/{id}/delete', [UsersController::class, 'delete']);
     });
 });
 
@@ -74,3 +53,11 @@ Route::group(['prefix' => 'sim-card-recharges'], function () {
     Route::post('/store', [SimCardRechargeController::class, 'store']);
 });
 
+Route::post('/simrecharges/store', [SimCardRechargeController::class, 'store']);
+
+//sim recharge cruds
+Route::group(['prefix' => 'simrecharges'], function () {
+    Route::get('/', [SimCardRechargeController::class, 'index']);
+    Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
+    Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
+});

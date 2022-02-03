@@ -10,14 +10,14 @@ use Illuminate\Queue\SerializesModels;
 class SimRecharged extends Mailable
 {
     use Queueable, SerializesModels;
-public $simRecharge;
-public $user;
+    public $simRecharge;
+    public $user;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($simRecharge,$user)
+    public function __construct($simRecharge, $user)
     {
         $this->simRecharge = $simRecharge;
         $this->user = $user;
@@ -31,7 +31,6 @@ public $user;
     public function build()
     {
         return $this
-        ->from(env('APP_NAME')
-        ->text('emails.SimRecharged'));
+            ->view('emails.SimRecharged');
     }
 }
