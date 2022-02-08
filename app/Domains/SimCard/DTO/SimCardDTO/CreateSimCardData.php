@@ -11,6 +11,7 @@ class CreateSimCardData extends DataTransferObject
     public string $number;
     public ?int $days;
     public ?int $status;
+    public ?int $available_days;
 
     public static function fromRequest(SimCardRequest $request): CreateSimCardData
     {
@@ -19,6 +20,7 @@ class CreateSimCardData extends DataTransferObject
             'days' =>  $request->days,
             'user_id' => $request->user_id,
             'status' => $request->status,
+            // 'available_days'=>$request->available_days
         ];
         return new self($data);
     }

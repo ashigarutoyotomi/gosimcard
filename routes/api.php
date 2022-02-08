@@ -25,12 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, "me"]);
     Route::get('/logout', [AuthController::class, 'logout']);
 
-    //simcards crud
-    Route::group(['prefix' => '/simcards'], function () {
-        Route::get('/', [SimCardController::class, 'index']);
-        Route::get('/{id}/show', [SimCardController::class, 'show']);
-        Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
-    });
+
 
     //users crud
     Route::group(['prefix' => '/users'], function () {
@@ -60,4 +55,13 @@ Route::group(['prefix' => 'simrecharges'], function () {
     Route::get('/', [SimCardRechargeController::class, 'index']);
     Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
     Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
+});
+
+
+//simcards crud
+Route::group(['prefix' => '/simcards'], function () {
+    Route::get('/', [SimCardController::class, 'index']);
+    Route::get('/{id}/show', [SimCardController::class, 'show']);
+    Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
+    Route::post('/createfromcsv',[SimCardController::class, 'createfromcsv']);
 });

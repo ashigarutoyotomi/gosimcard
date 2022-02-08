@@ -24,6 +24,7 @@ class CreateSimcardsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
+                $table->integer('available_days')->default(0);
         });
     }
 

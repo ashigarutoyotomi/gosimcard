@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\SimCard;
-
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Domains\SimCard\Gateways\SimCardGateway;
 use App\Http\Requests\SimCard\SimCardRequest;
@@ -79,5 +79,38 @@ class SimCardController extends Controller
             $activation->delete();
         }
         return $simcard;
+    }
+    public function createfromcsv(Request $request){
+        $validated = $request->validate([
+            'user_id' => 'nullable|integer',
+            'csv' => 'required|file'
+        ]);
+        if(!empty($request->user_id)){
+            $user = User::find($request->user_id);
+            abort_unless((bool)$user, 404, 'user not found');
+        }
+
+       if ($request->file('csv')->isValid()){
+        $simcards = [];
+
+        $i = 1;
+        $path = $request->csv->storeAs('csv', md5(time()).'.csv');
+        $handle = fopen(base_path('storage/app/'.$path),'r');
+        while ((($row = fgetcsv($handle))!==FALSE)) {
+            $row = explode(',',$row[0]);
+            $data = new CreateSimCardData([
+                'number' => $row[0],
+                'days' => (int)$row[2],
+                'user_id' => $request->user_id,
+                'available_days'=>(int)$row[1]
+            ]);
+
+            $simcard = (new SimCardAction)->create($data);
+            $simcards[]=$simcard;
+            $i++;
+        }
+        fclose($handle);
+    }
+       return $simcards;
     }
 }
