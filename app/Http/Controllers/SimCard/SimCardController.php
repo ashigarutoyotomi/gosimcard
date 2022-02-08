@@ -81,35 +81,58 @@ class SimCardController extends Controller
         }
         return $simcard;
     }
+
     public function createFromCsv(Request $request){
         $validated = $request->validate([
             'csv' => 'required|file'
         ]);
+
         if($request->file('csv')->getClientOriginalExtension()!= 'csv'){
             abort(403, 'file must be in csv format');
         }
-       if ($request->file('csv')->isValid()){
-        $simcards = [];
 
-        $i = 1;
-        $path = $request->csv->storeAs('csv', md5(time()).'.csv');
-        $handle = fopen(base_path('storage/app/'.$path),'r');
-        while ((($row = fgetcsv($handle))!==FALSE)) {
-            $simCard = SimCard::where('number',$row[0])->first();
-            abort_if($simCard,406,'this simcard already exists '.$row[0] );
-            // $data = new CreateSimCardData([
-            //     'number' => $row[0],
-            //     'user_id' => $request->user_id,
-            //     'available_days'=>(int)$row[1],
-            //     'days' => (int)$row[2]
-            // ]);
+        if ($request->file('csv')->isValid()){
+            $simCardsFromFile = [];
+            $simCardNumbersFromFile = [];
+            $newSimCards = [];
 
-            // $simcard = (new SimCardAction)->create($data);
-            $simcards[]=$row;
-            $i++;
+            $path = $request->csv->storeAs('csv', md5(time()).'.csv');
+
+            $handle = fopen(base_path('storage/app/'.$path),'r');
+
+            $i = 0;
+            while ((($row = fgetcsv($handle)) !== FALSE)) {
+                if ($i === 0) {
+                    $i++;
+                    continue;
+                }
+
+                $simCardsFromFile[] = $row;
+                $simCardNumbersFromFile[] = $row[0];
+                $i++;
+            }
+
+            fclose($handle);
+
+            $simCards = SimCard::whereIn('number', $simCardNumbersFromFile)->get();
+            $simCardNumbers = $simCards->pluck('number')->toArray();
+
+            foreach ($simCardsFromFile as $simCardFromFile) {
+                if (in_array($simCardFromFile[0], $simCardNumbers, true)) {
+                    continue;
+                }
+
+                $data = new CreateSimCardData([
+                    'number' => $simCardFromFile[0],
+                    'days' => (int)$simCardFromFile[1],
+                    'available_days'=>(int)$simCardFromFile[2],
+                    'status' => SimCard::STATUS_NEW,
+                ]);
+
+                $newSimCards[] = (new SimCardAction)->create($data);
+            }
         }
-        fclose($handle);
-    }
-       return $simcards;
+
+        return $newSimCards;
     }
 }
