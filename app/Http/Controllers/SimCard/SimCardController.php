@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\SimCard;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Domains\SimCard\Gateways\SimCardGateway;
@@ -80,16 +81,13 @@ class SimCardController extends Controller
         }
         return $simcard;
     }
-    public function createfromcsv(Request $request){
+    public function createFromCsv(Request $request){
         $validated = $request->validate([
-            'user_id' => 'nullable|integer',
             'csv' => 'required|file'
         ]);
-        if(!empty($request->user_id)){
-            $user = User::find($request->user_id);
-            abort_unless((bool)$user, 404, 'user not found');
+        if($request->file('csv')->getClientOriginalExtension()!= 'csv'){
+            abort(403, 'file must be in csv format');
         }
-
        if ($request->file('csv')->isValid()){
         $simcards = [];
 
@@ -97,16 +95,17 @@ class SimCardController extends Controller
         $path = $request->csv->storeAs('csv', md5(time()).'.csv');
         $handle = fopen(base_path('storage/app/'.$path),'r');
         while ((($row = fgetcsv($handle))!==FALSE)) {
-            $row = explode(',',$row[0]);
-            $data = new CreateSimCardData([
-                'number' => $row[0],
-                'days' => (int)$row[2],
-                'user_id' => $request->user_id,
-                'available_days'=>(int)$row[1]
-            ]);
+            $simCard = SimCard::where('number',$row[0])->first();
+            abort_if($simCard,406,'this simcard already exists '.$row[0] );
+            // $data = new CreateSimCardData([
+            //     'number' => $row[0],
+            //     'user_id' => $request->user_id,
+            //     'available_days'=>(int)$row[1],
+            //     'days' => (int)$row[2]
+            // ]);
 
-            $simcard = (new SimCardAction)->create($data);
-            $simcards[]=$simcard;
+            // $simcard = (new SimCardAction)->create($data);
+            $simcards[]=$row;
             $i++;
         }
         fclose($handle);

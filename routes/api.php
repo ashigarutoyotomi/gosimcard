@@ -63,5 +63,5 @@ Route::group(['prefix' => '/simcards'], function () {
     Route::get('/', [SimCardController::class, 'index']);
     Route::get('/{id}/show', [SimCardController::class, 'show']);
     Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
-    Route::post('/createfromcsv',[SimCardController::class, 'createfromcsv']);
+    Route::post('/createfromcsv',[SimCardController::class, 'createFromCsv']);
 });
