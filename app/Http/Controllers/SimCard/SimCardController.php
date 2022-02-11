@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers\SimCard;
-
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Domains\SimCard\Gateways\SimCardGateway;
 use App\Http\Requests\SimCard\SimCardRequest;
@@ -79,5 +80,59 @@ class SimCardController extends Controller
             $activation->delete();
         }
         return $simcard;
+    }
+
+    public function createFromCsv(Request $request){
+        $validated = $request->validate([
+            'csv' => 'required|file'
+        ]);
+
+        if($request->file('csv')->getClientOriginalExtension()!= 'csv'){
+            abort(403, 'file must be in csv format');
+        }
+
+        if ($request->file('csv')->isValid()){
+            $simCardsFromFile = [];
+            $simCardNumbersFromFile = [];
+            $newSimCards = [];
+
+            $path = $request->csv->storeAs('csv', md5(time()).'.csv');
+
+            $handle = fopen(base_path('storage/app/'.$path),'r');
+
+            $i = 0;
+            while ((($row = fgetcsv($handle)) !== FALSE)) {
+                if ($i === 0) {
+                    $i++;
+                    continue;
+                }
+
+                $simCardsFromFile[] = $row;
+                $simCardNumbersFromFile[] = $row[0];
+                $i++;
+            }
+
+            fclose($handle);
+
+            $simCards = SimCard::whereIn('number', $simCardNumbersFromFile)->get();
+            $simCardNumbers = $simCards->pluck('number')->toArray();
+
+            foreach ($simCardsFromFile as $simCardFromFile) {
+                if (in_array($simCardFromFile[0], $simCardNumbers, true)) {
+                    continue;
+                }
+
+                $data = new CreateSimCardData([
+                    'number' => $simCardFromFile[0],
+                    'days' => (int)$simCardFromFile[1],
+                    'available_days'=>(int)$simCardFromFile[2],
+                    'status' => SimCard::STATUS_NEW,
+                ]);
+
+                $newSimCards[] = (new SimCardAction)->create($data);
+            }
+        }
+
+        return $newSimCards;
     }
 }
