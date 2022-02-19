@@ -14,17 +14,20 @@ class CreateSimcardsTable extends Migration
      */
     public function up()
     {
-        Schema::create('simcards', function (Blueprint $table) {
+        Schema::create('sim_cards', function (Blueprint $table) {
             $table->id();
-            $table->string('number')->unique();
-            $table->integer('status')->nullable();
-            $table->integer('days')->default(0);
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('iccid')->unique();
+            $table->integer('valid_days');
+            $table->integer('expiration_days');
+
+            $table->unsignedBigInteger('creator_id');
+
             $table->timestamps();
-            $table->foreign('user_id')
+
+            $table->foreign('creator_id')
                 ->references('id')
-                ->on('users');
-            $table->integer('available_days')->default(0);
+                ->on('users')
+                ->onDelete('restrict');
         });
     }
 
@@ -35,6 +38,6 @@ class CreateSimcardsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('simcards');
+        Schema::dropIfExists('sim_cards');
     }
 }

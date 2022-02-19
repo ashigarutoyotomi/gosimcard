@@ -2,37 +2,33 @@
 
 namespace App\Domains\SimCard\Models;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Domains\SimCard\Models\SimActivation;
-use App\Domains\SimCard\Models\SimRecharge;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SimCard extends Model
 {
-    use HasFactory;
-
-    protected $table = 'simcards';
+    protected $table = 'sim_cards';
 
     protected $fillable = [
-        'number',
-        'user_id',
-        'days',
-        'status'
+        'iccid',
+        'valid_days',
+        'expiration_days',
+        'creator_id',
     ];
 
-    const STATUS_NEW = 1;
-    const STATUS_IN_PROCESS = 2;
-    const STATUS_ACTIVATED = 3;
-
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function activations(){
-        return $this->hasMany(SimActivation::class,'sim_card_id');
+    public function activations(): HasMany
+    {
+        return $this->hasMany(SimCardActivation::class,'sim_card_id');
     }
 
-    public function recharges (){
+    public function recharges(): HasMany
+    {
         return $this->hasMany(SimRecharge::class,'sim_card_id');
     }
 }

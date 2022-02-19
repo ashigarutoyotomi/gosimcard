@@ -29,8 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::group(['prefix' => '/sim-cards'], function () {
         Route::get('/', [SimCardController::class, 'index']);
         Route::get('/{id}/show', [SimCardController::class, 'show']);
-        Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
+
+        Route::post('/store', [SimCardController::class, 'store']);
         Route::post('/create-from-csv',[SimCardController::class, 'createFromCsv']);
+
+        Route::delete('/{id}/delete', [SimCardController::class, 'delete']);
     });
 
     //sim recharge
@@ -42,25 +45,37 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //sim activations
     Route::group(['prefix' => 'sim-card-activations'], function () {
-        Route::get('/', [SimCardRechargeController::class, 'index']);
-        Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
-        Route::post('/{id}/activate', [SimCardRechargeController::class, 'activate']);
+        Route::get('/', [SimCardActivationController::class, 'index']);
+        Route::get('/{id}/show', [SimCardActivationController::class, 'show']);
+
+        Route::post('/{id}/activate', [SimCardActivationController::class, 'activate']);
+
+        Route::delete('/{id}/delete', [SimCardActivationController::class, 'delete']);
     });
 
     //users
     Route::group(['prefix' => '/users'], function () {
         Route::get('/', [UsersController::class, 'index']);
-        Route::post('/store', [UsersController::class, 'store']);
         Route::get('/{id}/show', [UsersController::class, 'show']);
         Route::get('/{id}/edit', [UsersController::class, 'edit']);
+        Route::get('/charts/line/customers-data', [UsersController::class, 'getChartLineCustomersData']);
+
+        Route::post('/store', [UsersController::class, 'store']);
         Route::post('/{id}/update', [UsersController::class, "update"]);
+
         Route::delete('/{id}/delete', [UsersController::class, 'delete']);
     });
+});
+
+//sim cards
+Route::group(['prefix' => '/sim-cards'], function () {
+    Route::get('/{iccid}/check-by-iccid', [SimCardController::class, 'checkByIccid']);
 });
 
 //sim activations
 Route::group(['prefix' => 'sim-card-activations'], function () {
     Route::post('/store', [SimCardActivationController::class, 'store']);
+    Route::put('/{id}/process', [SimCardActivationController::class, 'process']);
 });
 
 //sim recharge

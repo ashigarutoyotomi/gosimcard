@@ -17,7 +17,8 @@ class UserAction
     public function create(CreateUserData $data)
     {
         return User::create([
-            'name' => $data->name,
+            'first_name' => $data->first_name,
+            'last_name' => $data->last_name,
             'email' => $data->email,
             'password' => $data->password,
             'role' => $data->role,
@@ -28,11 +29,18 @@ class UserAction
     {
         $user = User::find($data->id);
         abort_unless((bool)$user, 404, 'user not found');
-        $user->name = $data->name;
+
+        $user->first_name = $data->first_name;
+        $user->last_name = $data->last_name;
         $user->email = $data->email;
-        $user->password = $data->password ? Hash::make($data->password) : $user->password;
         $user->role = $data->role;
+
+        if ($data->password) {
+            $user->password = $data->password;
+        }
+
         $user->save();
+
         return $user;
     }
 }

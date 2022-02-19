@@ -17,14 +17,15 @@ class User extends Authenticatable
      * @var string[]
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'role',
     ];
 
     /**
-     * attributes that should be hiden for serialization
+     * attributes that should be hidden for serialization
      *
      * @var array
      */
@@ -45,4 +46,5 @@ class User extends Authenticatable
     const USER_ROLE_ADMIN = 1;
     const USER_ROLE_MANAGER = 2;
     const USER_ROLE_CUSTOMER = 3;
+    const USER_ROLE_SUPER_ADMIN = 999;
 }

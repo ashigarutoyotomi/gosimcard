@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\SimCard;
+use App\Http\Requests\SimCard\CreateSimCardRequest;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
@@ -19,67 +20,67 @@ class SimCardController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = json_decode($request->get('filters'));
-        $simCardsQuery = SimCard::query();
-        if (!empty($request->get('keywords'))) {
-            $simCardsQuery->where('number', 'like', '%' . $request->get('keywords') . '%');
+        $gateway = new SimCardGateway();
+
+        $keywords = $request->get('keywords');
+        if ($keywords) {
+            $gateway->setSearch($keywords, ['iccid']);
         }
-        if (!empty($request->get('filters'))) {
-            if (!empty($filters['status'])) {
-                $simCardsQuery->where('status', $filters['status']);
-            }
-            if (!empty($filters['start_created_date'])) {
-                $simCardsQuery->where('created_at', '>=', $filters['start_created_at']);
-            }
-            if (!empty($filters['end_created_date'])) {
-                $simCardsQuery->where('created_at', '<', $filters['end_created_'], '<=', $filters['end_created_date']);
-            }
+
+        $filters = json_decode($request->get('filters'), true);
+        if ($filters) {
+            $gateway->setFilters($filters);
         }
-        $simCards = $simCardsQuery->get();
-        return $simCards;
+
+        $gateway->paginate(20);
+
+        return $gateway->all();
     }
 
-    public function show($simCardId)
+    public function show(int $simCardId)
     {
-        $simcard = SimCard::find($simCardId);
-        abort_unless((bool)$simcard, 404, 'simcard not found');
-        return $simcard;
+        $simCard = SimCard::find($simCardId);
+        abort_unless((bool)$simCard, 404, 'simcard not found');
+
+        $gateway = new SimCardGateway();
+        $gateway->with('creator');
+
+        return $gateway->getById($simCardId);
     }
 
-    public function store(Request $request)
+    public function checkByIccid(string $iccid)
     {
-        $validated = $request->validate([
-            'status' => 'nullable|integer',
-            'user_id' => 'nullable|integer',
-            'days' => 'nullable|integer',
-            'number' => 'required|string|unique:simcards'
-        ]);
-        if (!empty($request->user_id)) {
-            $user = User::find($request->user_id);
-            abort_unless((bool)$user, 404, 'user not found');
-        }
-        $data = new CreateSimCardData([
-            'number' => $request->number,
-            'status' => $request->status,
-            'days' => (int)$request->days,
-            'user_id' => $request->user_id
-        ]);
+        $gateway = new SimCardGateway();
+        $simCard = $gateway->getByIccid($iccid);
+        abort_unless((bool)$simCard, 404, 'Sim card with this ICCID not found');
 
-        $simcard = (new SimCardAction)->create($data);
-
-        return $simcard;
+        return [
+            'iccid' => $simCard->iccid,
+            'valid_days' => $simCard->valid_days,
+            'expiration_days' => $simCard->expiration_days,
+        ];
     }
 
-    public function delete($simCardId)
+    public function store(CreateSimCardRequest $request)
     {
-        $simcard = SimCard::find($simCardId);
-        abort_unless((bool)$simcard, 404, 'simcard not found');
-        $simcard->delete();
-        $activations = $simcard->activations;
+        $data = CreateSimCardData::fromRequest($request);
+
+        return (new SimCardAction)->create($data);
+    }
+
+    public function delete(int $simCardId)
+    {
+        $simCard = SimCard::find($simCardId);
+        abort_unless((bool)$simCard, 404, 'sim card not found');
+
+        $simCard->delete();
+        $activations = $simCard->activations;
+
         foreach ($activations as $activation) {
             $activation->delete();
         }
-        return $simcard;
+
+        return $simCard;
     }
 
     public function createFromCsv(Request $request){
@@ -88,8 +89,10 @@ class SimCardController extends Controller
         ]);
 
         if($request->file('csv')->getClientOriginalExtension()!= 'csv'){
-            abort(403, 'file must be in csv format');
+            abort(403, 'File must be in csv format');
         }
+
+        $user = Auth::user();
 
         if ($request->file('csv')->isValid()){
             $simCardsFromFile = [];
@@ -114,8 +117,8 @@ class SimCardController extends Controller
 
             fclose($handle);
 
-            $simCards = SimCard::whereIn('number', $simCardNumbersFromFile)->get();
-            $simCardNumbers = $simCards->pluck('number')->toArray();
+            $simCards = SimCard::whereIn('iccid', $simCardNumbersFromFile)->get();
+            $simCardNumbers = $simCards->pluck('iccid')->toArray();
 
             foreach ($simCardsFromFile as $simCardFromFile) {
                 if (in_array($simCardFromFile[0], $simCardNumbers, true)) {
@@ -123,10 +126,10 @@ class SimCardController extends Controller
                 }
 
                 $data = new CreateSimCardData([
-                    'number' => $simCardFromFile[0],
-                    'days' => (int)$simCardFromFile[1],
-                    'available_days'=>(int)$simCardFromFile[2],
-                    'status' => SimCard::STATUS_NEW,
+                    'iccid' => $simCardFromFile[0],
+                    'valid_days' => (int)$simCardFromFile[1],
+                    'expiration_days' => (int)$simCardFromFile[2],
+                    'creator_id' => $user->id,
                 ]);
 
                 $newSimCards[] = (new SimCardAction)->create($data);

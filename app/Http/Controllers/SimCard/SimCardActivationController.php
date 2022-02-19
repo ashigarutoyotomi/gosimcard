@@ -2,89 +2,60 @@
 
 namespace App\Http\Controllers\SimCard;
 
+use App\Domains\SimCard\Gateways\SimCardActivationGateway;
+use App\Http\Requests\SimCard\SimCardActivation\CreateSimCardActivationRequest;
 use Illuminate\Http\Request;
-use App\Mail\SimCardActivated;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\SimCardActivationCreated;
 use App\Domains\SimCard\Models\SimCard;
-use App\Domains\SimCard\Models\SimActivation;
-use App\Http\Requests\SimCard\SimCardRequest;
-use App\Domains\SimCard\Gateways\SimCardGateway;
+use App\Domains\SimCard\Models\SimCardActivation;
 use App\Domains\SimCard\Actions\SimCardActivationAction;
-use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardData;
 use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardActivationData;
 
 class SimCardActivationController extends Controller
 {
     public function index(Request $request)
     {
+        $gateway = new SimCardActivationGateway();
+
+        $keywords = $request->get('keywords');
+        if ($keywords) {
+            $gateway->setSearch($keywords, ['iccid', 'email']);
+        }
+
         $filters = json_decode($request->get('filters'), true);
-        $simActivationsFromSim = [];
-        $simActivationsQuery = SimActivation::query();
-        $simActivationsQuery->select('sim_activations.*')
-            ->distinct();
-        if (!empty($request->get('keywords'))) {
-            $simActivationsQuery
-                ->leftJoin('simcards', 'sim_activations.sim_card_id', '=', 'simcards.id')
-                ->where('simcards.number', 'like', '%' . $request->get('keywords') . '%');
-        }
-        if (!empty($request->get('filters'))) {
-            if (!empty($filters['start_created_date'])) {
-                $simActivationsQuery->where('sim_activations.created_at', '>=', $filters['sim_activations.start_created_date']);
-            }
-            if (!empty($filters['end_created_date'])) {
-                $simActivationsQuery->where('sim_activations.created_at', '<=', $filters['end_created_date']);
-            }
-            if (!empty($filters['start_date'])) {
-                $simActivationsQuery->where('sim_activations.start_date', $filters['start_date']);
-            }
-            if (!empty($filters['end_date'])) {
-                $simActivationsQuery->where('sim_activations.end_date', $filters['end_date']);
-            }
-            if (!empty($filters['status'])) {
-                $simActivationsQuery->where('sim_activations.status', $filters['status']);
-            }
+        if ($filters) {
+            $gateway->setFilters($filters);
         }
 
-        $simActivationsQuery->with('simcard');
+        $gateway->paginate(20);
 
-        return response()->json($simActivationsQuery->get());
+        return $gateway->all();
     }
 
     public function show($simActivationId)
     {
-        $simActivation = SimActivation::with('simcard')
+        $simActivation = SimCardActivation::with('sim_card')
             ->find($simActivationId);
         abort_unless((bool)$simActivation, 404, 'activation not found');
         return $simActivation;
     }
 
-    public function store(Request $request)
+    public function store(CreateSimCardActivationRequest $request)
     {
-        $validated = $request->validate([
-            'available_days' => 'required|integer',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'status' => "nullable|integer",
-            'number' => 'required|string',
-            'user_id' => 'nullable|integer'
-        ]);
-        $simCard = SimCard::where('number', $request->number)->first();
-        abort_unless((bool)$simCard,404,'simcard not found');
-        if ($simCard != null) {
-            $request->sim_card_id = $simCard->id;
+        $simCard = SimCard::where('iccid', $request->iccid)->first();
+        abort_unless((bool)$simCard,404,'Sim Card not found');
+
+        $gateway = new SimCardActivationGateway();
+
+        $id = $request->get('id');
+        if ($id) {
+            $simCardActivation = $gateway->getById($id);
+            if ($simCardActivation) {
+                return $gateway->getById($id);
+            }
         }
-        $data = new CreateSimCardActivationData([
-            'available_days' => (int)$request->available_days,
-            'end_date' => $request->end_date,
-            'start_date' => $request->start_date,
-            'user_id' => $request->user_id,
-            'status' => $request->status,
-            'number' => $request->number
-        ]);
+
+        $data = CreateSimCardActivationData::fromRequest($request, $simCard->id);
 
         $simActivation = (new SimCardActivationAction)->create($data);
 
@@ -92,22 +63,34 @@ class SimCardActivationController extends Controller
 
         return $simActivation;
     }
-    public function activate(Request $request, $simActivationId)
+
+    public function process(int $id)
     {
-        $simActivation = SimActivation::with('simcard')->find($simActivationId);
-        abort_unless((bool)$simActivation, 404, 'simactivation not found');
-        $simCard = $simActivation->simcard;
-        $simCard->status = SimCard::STATUS_ACTIVATED;
-        $simActivation->status = SimCard::STATUS_ACTIVATED;
-        $simCard->save();
+        $gateway = new SimCardActivationGateway();
+
+        $simCardActivation = $gateway->getById($id);
+        abort_unless((bool)$simCardActivation, 404, 'Sim card activation not found');
+
+        $simCardActivation->status = SimCardActivation::STATUS_AWAITING;
+        $simCardActivation->save();
+
+        return $simCardActivation;
+    }
+
+    public function activate(int $id)
+    {
+        $simActivation = SimCardActivation::with('sim_card')->find($id);
+        abort_unless((bool)$simActivation, 404, 'sim cart activation not found');
+
+        $simActivation->status = SimCardActivation::STATUS_ACTIVATED;
         $simActivation->save();
         // Mail::to("admin@gmail.com")->send(new SimCardActivated($simActivation));
-        return $simCard;
+        return $simActivation;
     }
 
     public function delete($id)
     {
-        $simActivation = SimActivation::find($id);
+        $simActivation = SimCardActivation::find($id);
         abort_unless((bool)$simActivation, 404, 'Sim activation not found');
         $simActivation->delete();
         return $simActivation;

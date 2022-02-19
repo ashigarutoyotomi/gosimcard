@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\SimCard;
+namespace App\Http\Requests\SimCard\SimCardActivation;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SimCardActivationRequest extends FormRequest
+class CreateSimCardActivationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,20 +21,22 @@ class SimCardActivationRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
+            'iccid' => 'required|string|exists:sim_cards',
             'available_days' => 'required|integer',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'number' => 'required|string',
+            'email' => 'nullable',
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
-            'number.required' => 'Please enter correct Activation Code',
+            'iccid.required' => 'Please enter correct Activation Code',
+            'iccid.exists' => 'Sim card with this ICCID not found',
             'start_date.required' => 'Please select start date'
         ];
     }

@@ -14,23 +14,29 @@ class CreateSimActivationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('sim_activations', function (Blueprint $table) {
+        Schema::create('sim_card_activations', function (Blueprint $table) {
             $table->id();
+
+            $table->string('iccid');
             $table->integer('available_days')->default(0);
             $table->datetime('start_date');
             $table->datetime('end_date');
-            $table->integer('status')->nullable();
+            $table->integer('status');
+            $table->string('email')->nullable();
+
             $table->unsignedBigInteger('sim_card_id');
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('number');
+
             $table->timestamps();
+
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
+
             $table->foreign('sim_card_id')
                 ->references('id')
-                ->on('simcards')
+                ->on('sim_cards')
                 ->onDelete('cascade');
         });
     }
@@ -42,6 +48,6 @@ class CreateSimActivationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sim_activations');
+        Schema::dropIfExists('sim_card_activations');
     }
 }

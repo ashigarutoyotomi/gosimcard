@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Domains\User\Actions\UserAction;
 use App\Domains\User\DTO\UserDTO\CreateUserData;
@@ -23,50 +26,61 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         // $gateway = new UserGateway;
+//        $filters = json_decode($request->get('filters'), true);
+//
+//        $query = User::query();
+//
+//        if (!empty($request->get('filters'))) {
+//            if (!empty($filters['role'])) {
+//                $query->where('role', $filters['role']);
+//            }
+//            if (!empty($filters['start_created_date'])) {
+//                $query->where('created_at', '>=', $filters['start_created_date']);
+//            }
+//            if (!empty($filters['end_created_date'])) {
+//                $query->where('created_at', '<=', $filters['end_created_date']);
+//            }
+//        }
+//
+//        if (!empty($request->get('keywords'))) {
+//            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
+//                ->orWhere('email', 'like', '%' . $request->get('keywords') . '%');
+//        }
+//
+//        $users = $query->get();
+        $user = Auth::user();
+        $gateway = new UserGateway();
+
+        $keywords = $request->get('keywords');
+        if ($keywords) {
+            $gateway->setSearch($keywords, ['first_name', 'last_name', 'email']);
+        }
+
         $filters = json_decode($request->get('filters'), true);
-
-        $query = User::query();
-
-        if (!empty($request->get('filters'))) {
-            if (!empty($filters['role'])) {
-                $query->where('role', $filters['role']);
-            }
-            if (!empty($filters['start_created_date'])) {
-                $query->where('created_at', '>=', $filters['start_created_date']);
-            }
-            if (!empty($filters['end_created_date'])) {
-                $query->where('created_at', '<=', $filters['end_created_date']);
-            }
+        if ($filters) {
+            $gateway->setFilters($filters);
         }
 
-        if (!empty($request->get('keywords'))) {
-            $query->where('name', 'like', '%' . $request->get('keywords') . '%')
-                ->orWhere('email', 'like', '%' . $request->get('keywords') . '%');
-        }
+        $gateway->paginate(20);
 
-        $users = $query->get();
-        return $users;
+        return $gateway->all($user->id);
     }
 
-    public function store(Request $request)
+    /**
+     * @param CreateUserRequest $request
+     * @return User
+     */
+    public function store(CreateUserRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|max:50',
-            'role' => 'required|int'
-        ]);
-
         $data = new CreateUserData([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => (int)$request->role
         ]);
 
-        $user = (new UserAction)->create($data);
-
-        return $user;
+        return (new UserAction)->create($data);
     }
 
     public function show(Request $request, $userId)
@@ -80,40 +94,29 @@ class UsersController extends Controller
     {
         $user = User::find($userId);
         abort_unless((bool)$user, 404, 'user not found');
-        return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role
-        ]);
+
+        return $user;
     }
 
-    public function update(Request $request, $userId)
+    public function update(int $id, UpdateUserRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'password' => 'nullable|string',
-            'email' => 'required|email|unique:users,email,' . $userId,
-            'role' => 'required|integer'
-        ]);
-        $oldUser = User::find($userId);
-        abort_unless((bool)$oldUser, 404, 'user not found');
         $data = new UpdateUserData([
-            'name' => $request->name,
-            'password' => !empty($request->password) ? Hash::make($request->password) : $oldUser->password,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'password' => $request->get('password') ? Hash::make($request->get('password')) : null,
             'email' => $request->email,
             'role' => (int)$request->role,
-            'id' => (int)$userId
+            'id' => $id
         ]);
 
-        $user = (new UserAction)->update($data);
-        return $user;
+        return (new UserAction)->update($data);
     }
 
     public function delete($userId)
     {
         $user = User::find($userId);
         abort_unless((bool)$user, 404, 'user not found');
+
         $user->delete();
         return $user;
     }

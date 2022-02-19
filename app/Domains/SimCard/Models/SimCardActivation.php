@@ -2,22 +2,23 @@
 
 namespace App\Domains\SimCard\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\User\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use App\Domains\SimCard\Models\SimCard;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SimActivation extends Model
+class SimCardActivation extends Model
 {
+    protected $table = 'sim_card_activations';
+
     public $fillable = [
+        'iccid',
         'available_days',
         'start_date',
         'end_date',
+        'email',
         'status',
         'sim_card_id',
-        'email',
         'user_id',
-        'sim_number',
     ];
 
     const STATUS_NEW = 1;
@@ -30,5 +31,13 @@ class SimActivation extends Model
     public function sim_card(): BelongsTo
     {
         return $this->belongsTo(SimCard::class, 'sim_card_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

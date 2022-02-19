@@ -2,28 +2,31 @@
 
 namespace App\Domains\SimCard\DTO\SimCardDTO;
 
-use App\Http\Requests\SimCard\SimCardActivationRequest;
+use App\Domains\SimCard\Models\SimCardActivation;
+use App\Http\Requests\SimCard\SimCardActivation\CreateSimCardActivationRequest;
 use Spatie\DataTransferObject\DataTransferObject;
 
 class CreateSimCardActivationData extends DataTransferObject
 {
-    public int $available_days;
-    public string $end_date;
+    public string $iccid;
     public string $start_date;
-    public ?int $user_id;
+    public string $end_date;
+    public int $available_days;
+    public int $status;
+    public ?string $email;
     public int $sim_card_id;
-    public string $number;
-    public ?int $status;
+    public ?int $user_id;
 
-    public static function fromRequest(SimCardActivationRequest $request): CreateSimCardActivationData
+    public static function fromRequest(CreateSimCardActivationRequest $request, int $simCardId): CreateSimCardActivationData
     {
         $data = [
-            'end_date' => $request->end_date,
-            'start_date' =>  $request->start_date,
-            'user_id' => $request->user_id,
-            'available_days' => $request->available_days,
-            'sim_card_id' => $request->sim_card_id,
-            'number' => $request->number,
+            'iccid' => $request->get('iccid'),
+            'start_date' =>  $request->get('start_date'),
+            'end_date' => $request->get('end_date'),
+            'available_days' => $request->get('available_days'),
+            'sim_card_id' => $simCardId,
+            'status' => SimCardActivation::STATUS_NEW,
+            'email' => $request->get('email'),
         ];
 
         return new self($data);

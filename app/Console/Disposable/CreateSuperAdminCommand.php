@@ -45,10 +45,11 @@ class CreateSuperAdminCommand extends Command
 
         try {
             (new UserAction())->create(new CreateUserData([
-                'name' => 'Anakin Skywalker',
+                'first_name' => 'Anakin',
+                'last_name' => 'Skywalker',
                 'email' => 'skywalker@mail.com',
                 'password' => bcrypt('!I666am222DARth999VADer!'),
-                'role' => User::USER_ROLE_ADMIN,
+                'role' => User::USER_ROLE_SUPER_ADMIN,
             ]));
 
             $this->info("Super user successfully created!");
