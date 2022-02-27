@@ -29,6 +29,6 @@ class SimCard extends Model
 
     public function recharges(): HasMany
     {
-        return $this->hasMany(SimRecharge::class,'sim_card_id');
+        return $this->hasMany(SimCardRecharge::class,'sim_card_id');
     }
 }

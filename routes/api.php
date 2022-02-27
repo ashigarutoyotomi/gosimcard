@@ -39,8 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //sim recharge
     Route::group(['prefix' => 'sim-card-recharges'], function () {
         Route::get('/', [SimCardRechargeController::class, 'index']);
-        Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
         Route::get('/{id}/show', [SimCardRechargeController::class, 'show']);
+        Route::delete('/{id}/delete', [SimCardRechargeController::class, 'delete']);
     });
 
     //sim activations
@@ -81,5 +81,7 @@ Route::group(['prefix' => 'sim-card-activations'], function () {
 //sim recharge
 Route::group(['prefix' => 'sim-card-recharges'], function () {
     Route::post('/store', [SimCardRechargeController::class, 'store']);
+    Route::post('/payment', [SimCardRechargeController::class, 'payment']);
+    Route::post('/{id}/recharge', [SimCardRechargeController::class, 'recharge']);
 });
 

@@ -2,72 +2,93 @@
 
 namespace App\Http\Controllers\SimCard;
 
-use App\Http\Controllers\Controller;
+use App\Domains\SimCard\DTO\SimCardDTO\RechargeSimCardRechargeData;
 use App\Domains\SimCard\Gateways\SimCardRechargeGateway;
-use App\Http\Requests\SimCard\SimCardRechargeRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
+use App\Domains\SimCard\Models\SimCardRecharge;
+use App\Http\Controllers\Controller;
 use App\Domains\SimCard\DTO\SimCardDTO\CreateSimCardRechargeData;
 use App\Domains\SimCard\DTO\SimCardDTO\UpdateSimCardRechargeData;
 use App\Domains\SimCard\Actions\SimCardRechargeAction;
-use App\Domains\SimCard\Models\SimActivation;
 use App\Domains\SimCard\Models\SimRecharge;
-use Illuminate\Support\Facades\Mail;
 use App\Domains\SimCard\Models\SimCard;
+use App\Http\Requests\SimCard\SimCardRecharge\RechargeSimCardRechargeRequest;
+use App\Http\Requests\SimCard\SimCardRecharge\SimCardRechargeRequest;
 use App\Mail\SimRecharged;
+use Illuminate\Http\Request;
 
 class SimCardRechargeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $simRecharges = SimRecharge::all();
-        return $simRecharges;
+        $gateway = new SimCardRechargeGateway();
+
+        $keywords = $request->get('keywords');
+        if ($keywords) {
+            $gateway->setSearch($keywords, ['iccid', 'email']);
+        }
+
+        $filters = json_decode($request->get('filters'), true);
+        if ($filters) {
+            $gateway->setFilters($filters);
+        }
+
+        $gateway->paginate(20);
+
+        return $gateway->all();
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'days' => 'required|integer',
-            'user_id' => 'nullable|integer',
-            'status' => "nullable|integer",
-            'number' => 'required|string',
-            'email' => 'nullable|string'
-        ]);
-
-        $simCard = SimCard::where('number', $request->number)->first();
-        abort_unless((bool)$simCard, 404, 'simcard with this number not found');
-        $sim_card_id = $simCard->id;
-
-        $data = new CreateSimCardRechargeData([
-            'days' => (int)$request->days,
-            'number' => $request->number,
-            'sim_card_id' => $sim_card_id,
-            'user_id' => (int)$request->user_id,
-            'status' => !empty($request->status) ? (int)$request->status : SimCard::STATUS_NEW,
-            'email' => $request->email
-        ]);
-        $simRecharge = (new SimCardRechargeAction)->create($data);
-        return $simRecharge;
-    }
     public function show($simRechargeId)
     {
-        $simRecharge = SimRecharge::find($simRechargeId);
-        return $simRecharge;
+        return SimCardRecharge::find($simRechargeId);
     }
-    public function recharge(SimCardRechargeRequest $request, $simRechargeId)
-    {
-        $simRechargeData = UpdateSimCardRechargeData::fromRequest($simRechargeId, $request);
-        $simRecharge = new SimCardRechargeAction();
 
-        abort_unless((bool)$simRecharge, 404, 'not found');
-        $simRecharge = $simRecharge->update($simRechargeData, $simRecharge);
-        if ($request->email != null && !empty($request->email)) {
-            $simCard = SimCard::find($request->sim_card_id);
-            $user = $simCard->user;
-            $simRecharged = new SimRecharged($simRecharge, $user);
-            // Mail::to($request->email)->send($simRecharged);
+    public function store(SimCardRechargeRequest $request)
+    {
+        $simCard = SimCard::where('iccid', $request->iccid)->first();
+        abort_unless((bool)$simCard, 404, 'Sim card with this iccid not found');
+
+        $id = $request->get('id');
+        if ($id) {
+            $simCardRecharge = SimCardRecharge::find($id);
+            if ($simCardRecharge) {
+                return $simCardRecharge;
+            }
         }
-        return $simRecharge;
+
+        $data = CreateSimCardRechargeData::fromRequest($request, $simCard->id);
+
+        return (new SimCardRechargeAction)->create($data);
+    }
+
+    public function payment()
+    {
+        \Stripe\Stripe::setApiKey('sk_test_51IV8PJCrmyCPrP33RmtwD6RqY6Nic3M5F7DCuszPqMGTQJtxpEVGdPhB0aFwePVGr2HreEZBKCqiHfkEFFQZrGQM00lQc0uuLN');
+
+        $paymentIntent = \Stripe\PaymentIntent::create([
+            'amount' => 2000,
+            'currency' => 'usd',
+            'automatic_payment_methods' => [
+                'enabled' => true,
+            ],
+        ]);
+
+        return [
+            'clientSecret' => $paymentIntent->client_secret,
+        ];
+    }
+
+    public function recharge(RechargeSimCardRechargeRequest $request, int $simRechargeId)
+    {
+        $simRechargeData = RechargeSimCardRechargeData::fromRequest($request, $simRechargeId);
+
+        return (new SimCardRechargeAction)->recharge($simRechargeData);
+    }
+
+    public function delete($id)
+    {
+        $data = SimCardRecharge::find($id);
+        abort_unless((bool)$data, 404, 'Sim activation not found');
+        $data->delete();
+        return $data;
     }
 }

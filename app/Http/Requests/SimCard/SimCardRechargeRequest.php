@@ -24,12 +24,15 @@ class SimCardRechargeRequest extends FormRequest
     public function rules()
     {
         return [
-            'number' => 'required|string',
+            'iccid' => 'required|string',
+            'start_date' => 'required|string',
+            'end_date' => 'required|string',
+            'available_days' => 'required|integer',
             'status' => 'required|integer',
-            'sim_card_id' => 'required|integer',
-            'days' => 'required|integer',
+            'user_id' => 'required|integer',
+            'price' => 'required|integer',
             'email' => 'nullable|email',
-            'user_id' => 'required|integer'
+            'sim_card_id' => 'required|integer',
         ];
     }
 }
